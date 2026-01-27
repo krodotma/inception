@@ -28,7 +28,7 @@
 
 ```bash
 # Clone
-git clone https://github.com/kroma/inception.git
+git clone https://github.com/krodotma/inception.git
 cd inception
 
 # Install
@@ -44,8 +44,32 @@ inception ingest ~/Documents/paper.pdf
 # Explore
 inception explore  # TUI
 # or
-inception serve    # Web UI at localhost:8000
+inception serve    # Web UI at localhost:8000/ui
 ```
+
+---
+
+## Learning Engine (DAPO/GRPO/RLVR)
+
+Inception includes an advanced reinforcement learning engine for autonomous knowledge evolution:
+
+| Component | Purpose |
+|-----------|---------|
+| **DAPO** | Dynamic Advantage Policy Optimization - adaptive clip range, entropy scheduling |
+| **GRPO** | Group Relative Policy Optimization - within-group ranking for sparse rewards |
+| **RLVR** | RL with Verifiable Rewards - ground-truth verification against sources |
+| **GAPPolicy** | Uncertainty-guided gap exploration with priority scoring |
+| **ActiveLearner** | Query-by-committee sample selection |
+
+```bash
+# Execute learning step
+inception learn -a extract_claim -s sources.json
+
+# Check learning stats
+curl http://localhost:8000/api/learning/stats
+```
+
+See [docs/LEARNING.md](docs/LEARNING.md) for detailed documentation.
 
 ---
 

@@ -22,7 +22,8 @@ import os
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -1285,6 +1286,215 @@ async def root():
         "docs": "/docs",
         "health": "/health",
     }
+
+
+# =============================================================================
+# STATIC FILE SERVING & WEBUI
+# =============================================================================
+
+# Mount frontend static files
+_frontend_path = Path(__file__).parent.parent.parent / "frontend" / "public"
+if _frontend_path.exists():
+    app.mount("/static", StaticFiles(directory=str(_frontend_path)), name="static")
+    logger.info(f"Mounted static files from {_frontend_path}")
+
+@app.get("/ui", response_class=HTMLResponse)
+async def webui():
+    """Serve the unified WebUI."""
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inception</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <style>
+        :root {
+            --surface: #1e1e2e;
+            --surface-variant: #313244;
+            --on-surface: #cdd6f4;
+            --primary: #89b4fa;
+            --secondary: #a6e3a1;
+            --tertiary: #f9e2af;
+            --error: #f38ba8;
+            --outline: #45475a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--surface);
+            color: var(--on-surface);
+            min-height: 100vh;
+        }
+        .app {
+            display: grid;
+            grid-template-rows: 48px 1fr;
+            min-height: 100vh;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 0 24px;
+            background: var(--surface-variant);
+            border-bottom: 1px solid var(--outline);
+        }
+        .logo {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--primary);
+        }
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: var(--on-surface);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(137, 180, 250, 0.1);
+        }
+        .nav-link.active {
+            color: var(--primary);
+        }
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .panel {
+            background: var(--surface-variant);
+            border-radius: 12px;
+            border: 1px solid var(--outline);
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--outline);
+            font-weight: 500;
+        }
+        .panel-content {
+            padding: 16px;
+            height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+        #graph-container {
+            height: 100%;
+            background: var(--surface);
+            border-radius: 8px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+        .entity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .entity-item {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .entity-name {
+            font-weight: 500;
+            color: var(--secondary);
+        }
+        .entity-desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <nav class="navbar">
+            <div class="logo">🔮 Inception</div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-view="graph">Graph</a>
+                <a href="#" class="nav-link" data-view="timeline">Timeline</a>
+                <a href="#" class="nav-link" data-view="terminal">Terminal</a>
+            </div>
+        </nav>
+        <main class="main">
+            <div class="panel">
+                <div class="panel-header">Knowledge Graph</div>
+                <div class="panel-content">
+                    <div id="graph-container"></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">Statistics</div>
+                <div class="panel-content">
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card"><div class="stat-value" id="stat-entities">-</div><div class="stat-label">Entities</div></div>
+                        <div class="stat-card"><div class="stat-value" id="stat-claims">-</div><div class="stat-label">Claims</div></div>
+                        <div class="stat-card"><div class="stat-value" id="stat-gaps">-</div><div class="stat-label">Gaps</div></div>
+                        <div class="stat-card"><div class="stat-value" id="stat-sources">-</div><div class="stat-label">Sources</div></div>
+                    </div>
+                    <div class="entity-list" id="entity-list"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Fetch stats
+        fetch('/api/stats').then(r => r.json()).then(data => {
+            document.getElementById('stat-entities').textContent = data.entities;
+            document.getElementById('stat-claims').textContent = data.claims;
+            document.getElementById('stat-gaps').textContent = data.gaps;
+            document.getElementById('stat-sources').textContent = data.sources;
+        });
+        
+        // Fetch entities
+        fetch('/api/entities').then(r => r.json()).then(entities => {
+            const list = document.getElementById('entity-list');
+            entities.forEach(e => {
+                list.innerHTML += `
+                    <div class="entity-item">
+                        <div class="entity-name">${e.name}</div>
+                        <div class="entity-desc">${e.description || ''}</div>
+                    </div>
+                `;
+            });
+        });
+        
+        // Nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>"""
 
 
 # =============================================================================
