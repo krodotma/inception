@@ -1,0 +1,488 @@
+/* ============================================================================
+ * INCEPTION DESIGN SYSTEM - Material Web 3 Tokens
+ * ============================================================================
+ * VEGA-1: Elite UX Architect | ui-ux-pro-max | 200% Overdelivery
+ * 
+ * This file defines the core design tokens following Material Design 3 spec.
+ * All components MUST use these tokens - no hardcoded values.
+ * ============================================================================ */
+
+:root {
+  /* =========================================================================
+   * COLOR SYSTEM - Dynamic Color with Semantic Roles
+   * ========================================================================= */
+
+  /* Primary - Deep Violet (Knowledge/Wisdom) */
+  --md-sys-color-primary: #7C4DFF;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #E8DEFF;
+  --md-sys-color-on-primary-container: #21005E;
+
+  /* Secondary - Teal (Connection/Links) */
+  --md-sys-color-secondary: #00BFA5;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #A7FFEB;
+  --md-sys-color-on-secondary-container: #00382E;
+
+  /* Tertiary - Amber (Attention/Gaps) */
+  --md-sys-color-tertiary: #FFAB00;
+  --md-sys-color-on-tertiary: #000000;
+  --md-sys-color-tertiary-container: #FFECB3;
+  --md-sys-color-on-tertiary-container: #332600;
+
+  /* Error */
+  --md-sys-color-error: #FF5252;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-error-container: #FFCDD2;
+  --md-sys-color-on-error-container: #410002;
+
+  /* Surface - Light Mode */
+  --md-sys-color-surface: #FEFBFF;
+  --md-sys-color-on-surface: #1C1B1F;
+  --md-sys-color-surface-variant: #E7E0EC;
+  --md-sys-color-on-surface-variant: #49454F;
+
+  /* Outline */
+  --md-sys-color-outline: #79747E;
+  --md-sys-color-outline-variant: #CAC4D0;
+
+  /* Background */
+  --md-sys-color-background: #FEFBFF;
+  --md-sys-color-on-background: #1C1B1F;
+
+  /* Inverse */
+  --md-sys-color-inverse-surface: #313033;
+  --md-sys-color-inverse-on-surface: #F4EFF4;
+  --md-sys-color-inverse-primary: #D0BCFF;
+
+  /* Surface Containers - M3 Tonal Elevation */
+  --md-sys-color-surface-dim: #DED8E0;
+  --md-sys-color-surface-bright: #FEFBFF;
+  --md-sys-color-surface-container-lowest: #FFFFFF;
+  --md-sys-color-surface-container-low: #F7F2FA;
+  --md-sys-color-surface-container: #F3EDF7;
+  --md-sys-color-surface-container-high: #ECE6F0;
+  --md-sys-color-surface-container-highest: #E6E0E9;
+
+  /* =========================================================================
+   * TYPOGRAPHY - Inter + JetBrains Mono
+   * ========================================================================= */
+
+  /* Font Families */
+  --md-sys-typescale-font-family-plain: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --md-sys-typescale-font-family-brand: 'Inter', sans-serif;
+  --md-sys-typescale-font-family-code: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Display */
+  --md-sys-typescale-display-large: 700 57px/64px var(--md-sys-typescale-font-family-brand);
+  --md-sys-typescale-display-medium: 600 45px/52px var(--md-sys-typescale-font-family-brand);
+  --md-sys-typescale-display-small: 500 36px/44px var(--md-sys-typescale-font-family-brand);
+
+  /* Headline */
+  --md-sys-typescale-headline-large: 600 32px/40px var(--md-sys-typescale-font-family-brand);
+  --md-sys-typescale-headline-medium: 600 28px/36px var(--md-sys-typescale-font-family-brand);
+  --md-sys-typescale-headline-small: 600 24px/32px var(--md-sys-typescale-font-family-brand);
+
+  /* Title */
+  --md-sys-typescale-title-large: 500 22px/28px var(--md-sys-typescale-font-family-plain);
+  --md-sys-typescale-title-medium: 500 16px/24px var(--md-sys-typescale-font-family-plain);
+  --md-sys-typescale-title-small: 500 14px/20px var(--md-sys-typescale-font-family-plain);
+
+  /* Body */
+  --md-sys-typescale-body-large: 400 16px/24px var(--md-sys-typescale-font-family-plain);
+  --md-sys-typescale-body-medium: 400 14px/20px var(--md-sys-typescale-font-family-plain);
+  --md-sys-typescale-body-small: 400 12px/16px var(--md-sys-typescale-font-family-plain);
+
+  /* Label */
+  --md-sys-typescale-label-large: 500 14px/20px var(--md-sys-typescale-font-family-plain);
+  --md-sys-typescale-label-medium: 500 12px/16px var(--md-sys-typescale-font-family-plain);
+  --md-sys-typescale-label-small: 500 11px/16px var(--md-sys-typescale-font-family-plain);
+
+  /* =========================================================================
+   * SPACING - 4px Base Grid
+   * ========================================================================= */
+
+  --md-sys-spacing-xxs: 4px;
+  --md-sys-spacing-xs: 8px;
+  --md-sys-spacing-sm: 12px;
+  --md-sys-spacing-md: 16px;
+  --md-sys-spacing-lg: 24px;
+  --md-sys-spacing-xl: 32px;
+  --md-sys-spacing-xxl: 48px;
+  --md-sys-spacing-xxxl: 64px;
+
+  /* =========================================================================
+   * ELEVATION - Shadow System
+   * ========================================================================= */
+
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --md-sys-elevation-level2: 0 2px 4px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+  --md-sys-elevation-level3: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 12px rgba(0, 0, 0, 0.08);
+  --md-sys-elevation-level4: 0 6px 12px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.1);
+  --md-sys-elevation-level5: 0 8px 16px rgba(0, 0, 0, 0.14), 0 12px 24px rgba(0, 0, 0, 0.12);
+
+  /* =========================================================================
+   * SHAPE - Border Radius System
+   * ========================================================================= */
+
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* =========================================================================
+   * MOTION - Animation Curves
+   * ========================================================================= */
+
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  /* =========================================================================
+   * SEMANTIC TOKENS - Inception-Specific
+   * ========================================================================= */
+
+  /* Entity Types */
+  --inception-color-entity: var(--md-sys-color-primary);
+  --inception-color-claim: var(--md-sys-color-secondary);
+  --inception-color-procedure: #FF6D00;
+  --inception-color-gap: var(--md-sys-color-tertiary);
+  --inception-color-source: #7986CB;
+
+  /* Graph Node Colors */
+  --inception-graph-node-entity: #7C4DFF;
+  --inception-graph-node-claim: #00BFA5;
+  --inception-graph-node-procedure: #FF6D00;
+  --inception-graph-edge-default: #79747E;
+  --inception-graph-edge-strong: #7C4DFF;
+
+  /* Terminal Colors */
+  --inception-terminal-bg: #1E1E2E;
+  --inception-terminal-fg: #CDD6F4;
+  --inception-terminal-cursor: #F5E0DC;
+  --inception-terminal-selection: rgba(137, 180, 250, 0.3);
+
+  /* =========================================================================
+   * STATE LAYERS - M3 Interaction States
+   * ========================================================================= */
+
+  /* Hover state - 8% opacity overlay */
+  --md-state-layer-hover-opacity: 0.08;
+  --md-state-layer-hover-color: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+
+  /* Focus state - 10% opacity overlay */
+  --md-state-layer-focus-opacity: 0.10;
+  --md-state-layer-focus-color: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent);
+
+  /* Pressed state - 10% opacity overlay */
+  --md-state-layer-pressed-opacity: 0.10;
+  --md-state-layer-pressed-color: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent);
+
+  /* Dragged state - 16% opacity overlay */
+  --md-state-layer-dragged-opacity: 0.16;
+  --md-state-layer-dragged-color: color-mix(in srgb, var(--md-sys-color-on-surface) 16%, transparent);
+
+  /* Disabled state */
+  --md-state-layer-disabled-opacity: 0.38;
+  --md-state-layer-disabled-container-opacity: 0.12;
+
+  /* =========================================================================
+   * SURFACE TINT - Elevation Color Overlay
+   * ========================================================================= */
+
+  /* Surface tint increases with elevation (primary color overlay) */
+  --md-sys-surface-tint: var(--md-sys-color-primary);
+  --md-sys-surface-tint-level1: color-mix(in srgb, var(--md-sys-surface-tint) 5%, transparent);
+  --md-sys-surface-tint-level2: color-mix(in srgb, var(--md-sys-surface-tint) 8%, transparent);
+  --md-sys-surface-tint-level3: color-mix(in srgb, var(--md-sys-surface-tint) 11%, transparent);
+  --md-sys-surface-tint-level4: color-mix(in srgb, var(--md-sys-surface-tint) 12%, transparent);
+  --md-sys-surface-tint-level5: color-mix(in srgb, var(--md-sys-surface-tint) 14%, transparent);
+
+  /* =========================================================================
+   * SPRING PHYSICS - For Natural Motion
+   * ========================================================================= */
+
+  /* Underdamped springs (bouncy) */
+  --md-motion-spring-bouncy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --md-motion-spring-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Critically damped (smooth without overshoot) */
+  --md-motion-spring-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Overdamped (slow settle) */
+  --md-motion-spring-slow: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* =========================================================================
+   * FOCUS RING - Accessibility
+   * ========================================================================= */
+
+  --md-focus-ring-width: 3px;
+  --md-focus-ring-offset: 2px;
+  --md-focus-ring-color: var(--md-sys-color-primary);
+  --md-focus-ring-style: solid;
+}
+
+/* ============================================================================
+ * DARK THEME - Premium Night Mode
+ * ============================================================================ */
+
+[data-theme="dark"],
+.dark-theme,
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Primary */
+    --md-sys-color-primary: #D0BCFF;
+    --md-sys-color-on-primary: #381E72;
+    --md-sys-color-primary-container: #4F378B;
+    --md-sys-color-on-primary-container: #EADDFF;
+
+    /* Secondary */
+    --md-sys-color-secondary: #64FFDA;
+    --md-sys-color-on-secondary: #00382E;
+    --md-sys-color-secondary-container: #00594A;
+    --md-sys-color-on-secondary-container: #A7FFEB;
+
+    /* Tertiary */
+    --md-sys-color-tertiary: #FFD54F;
+    --md-sys-color-on-tertiary: #332600;
+    --md-sys-color-tertiary-container: #4D3A00;
+    --md-sys-color-on-tertiary-container: #FFECB3;
+
+    /* Error */
+    --md-sys-color-error: #FF8A80;
+    --md-sys-color-on-error: #690005;
+    --md-sys-color-error-container: #93000A;
+    --md-sys-color-on-error-container: #FFCDD2;
+
+    /* Surface - Dark Mode */
+    --md-sys-color-surface: #141218;
+    --md-sys-color-on-surface: #E6E1E5;
+    --md-sys-color-surface-variant: #49454F;
+    --md-sys-color-on-surface-variant: #CAC4D0;
+
+    /* Outline */
+    --md-sys-color-outline: #938F99;
+    --md-sys-color-outline-variant: #49454F;
+
+    /* Background */
+    --md-sys-color-background: #141218;
+    --md-sys-color-on-background: #E6E1E5;
+
+    /* Surface Containers */
+    --md-sys-color-surface-dim: #141218;
+    --md-sys-color-surface-bright: #3B383E;
+    --md-sys-color-surface-container-lowest: #0F0D13;
+    --md-sys-color-surface-container-low: #1D1B20;
+    --md-sys-color-surface-container: #211F26;
+    --md-sys-color-surface-container-high: #2B2930;
+    --md-sys-color-surface-container-highest: #36343B;
+
+    /* Elevation - Adjusted for dark */
+    --md-sys-elevation-level1: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --md-sys-elevation-level2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.3);
+    --md-sys-elevation-level3: 0 4px 10px rgba(0, 0, 0, 0.4), 0 6px 14px rgba(0, 0, 0, 0.3);
+    --md-sys-elevation-level4: 0 6px 14px rgba(0, 0, 0, 0.5), 0 8px 18px rgba(0, 0, 0, 0.4);
+    --md-sys-elevation-level5: 0 8px 18px rgba(0, 0, 0, 0.5), 0 12px 26px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ============================================================================
+ * UTILITY CLASSES
+ * ============================================================================ */
+
+/* Typography Helpers */
+.text-display-large {
+  font: var(--md-sys-typescale-display-large);
+}
+
+.text-display-medium {
+  font: var(--md-sys-typescale-display-medium);
+}
+
+.text-display-small {
+  font: var(--md-sys-typescale-display-small);
+}
+
+.text-headline-large {
+  font: var(--md-sys-typescale-headline-large);
+}
+
+.text-headline-medium {
+  font: var(--md-sys-typescale-headline-medium);
+}
+
+.text-headline-small {
+  font: var(--md-sys-typescale-headline-small);
+}
+
+.text-title-large {
+  font: var(--md-sys-typescale-title-large);
+}
+
+.text-title-medium {
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.text-title-small {
+  font: var(--md-sys-typescale-title-small);
+}
+
+.text-body-large {
+  font: var(--md-sys-typescale-body-large);
+}
+
+.text-body-medium {
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.text-body-small {
+  font: var(--md-sys-typescale-body-small);
+}
+
+.text-label-large {
+  font: var(--md-sys-typescale-label-large);
+}
+
+.text-label-medium {
+  font: var(--md-sys-typescale-label-medium);
+}
+
+.text-label-small {
+  font: var(--md-sys-typescale-label-small);
+}
+
+/* Elevation Helpers */
+.elevation-0 {
+  box-shadow: var(--md-sys-elevation-level0);
+}
+
+.elevation-1 {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.elevation-2 {
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+.elevation-3 {
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.elevation-4 {
+  box-shadow: var(--md-sys-elevation-level4);
+}
+
+.elevation-5 {
+  box-shadow: var(--md-sys-elevation-level5);
+}
+
+/* Shape Helpers */
+.rounded-none {
+  border-radius: var(--md-sys-shape-corner-none);
+}
+
+.rounded-xs {
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+.rounded-sm {
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.rounded-md {
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.rounded-lg {
+  border-radius: var(--md-sys-shape-corner-large);
+}
+
+.rounded-xl {
+  border-radius: var(--md-sys-shape-corner-extra-large);
+}
+
+.rounded-full {
+  border-radius: var(--md-sys-shape-corner-full);
+}
+
+/* ============================================================================
+ * ANIMATIONS - Micro-interactions
+ * ============================================================================ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 77, 255, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(124, 77, 255, 0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
+}
+
+.animate-slide-up {
+  animation: slide-up var(--md-sys-motion-duration-medium3) var(--md-sys-motion-easing-emphasized-decelerate);
+}
+
+.animate-scale-in {
+  animation: scale-in var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
+}
+
+.animate-pulse {
+  animation: pulse-glow 2s infinite;
+}

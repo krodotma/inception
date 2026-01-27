@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Inception - Multi-modal knowledge extraction and graph visualization">
+
+  <title>Inception | Knowledge Extraction</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/components.css">
+  <link rel="stylesheet" href="/src/styles/transitions.css">
+
+  <!-- KINESIS: Enable cross-document View Transitions -->
+  <meta name="view-transition" content="same-origin">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+
+  <style>
+    /* Critical above-the-fold styles */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--md-sys-color-background);
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: white;
+      font-weight: 700;
+      animation: pulse-glow 2s infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen visible" id="loading-screen">
+    <div class="loading-logo">I</div>
+  </div>
+
+  <!-- App Root -->
+  <div id="app">
+    <!-- App Shell -->
+    <div class="app-shell">
+      <!-- Sidebar (KINESIS: state-driven) -->
+      <nav class="sidebar" id="sidebar" data-state="expanded">
+        <div class="app-sidebar__logo">
+          <div class="app-sidebar__logo-icon">I</div>
+          <span class="app-sidebar__logo-text">Inception</span>
+        </div>
+
+        <ul class="nav-list">
+          <li>
+            <a href="#dashboard" class="nav-item nav-item--active" data-route="dashboard">
+              <span class="material-symbols-outlined nav-item__icon">dashboard</span>
+              <span class="nav-item__label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#explorer" class="nav-item" data-route="explorer">
+              <span class="material-symbols-outlined nav-item__icon">explore</span>
+              <span class="nav-item__label">Explorer</span>
+            </a>
+          </li>
+          <li>
+            <a href="#graph" class="nav-item" data-route="graph">
+              <span class="material-symbols-outlined nav-item__icon">hub</span>
+              <span class="nav-item__label">Knowledge Graph</span>
+            </a>
+          </li>
+          <li>
+            <a href="#terminal" class="nav-item" data-route="terminal">
+              <span class="material-symbols-outlined nav-item__icon">terminal</span>
+              <span class="nav-item__label">Terminal</span>
+            </a>
+          </li>
+          <li>
+            <a href="#settings" class="nav-item" data-route="settings">
+              <span class="material-symbols-outlined nav-item__icon">settings</span>
+              <span class="nav-item__label">Settings</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Auth Status -->
+        <div style="margin-top: auto; padding: var(--md-sys-spacing-md);">
+          <div class="card card--filled" style="padding: var(--md-sys-spacing-sm);">
+            <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-xs);">
+              <span class="material-symbols-outlined" style="color: var(--md-sys-color-secondary);">verified</span>
+              <span class="text-label-medium">Claude Max</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Header -->
+      <header class="app-header">
+        <button class="btn btn--icon" id="menu-toggle" style="display: none;">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <h1 class="app-header__title" id="page-title">Dashboard</h1>
+        <div class="app-header__actions">
+          <div class="search-input" style="width: 300px;">
+            <span class="material-symbols-outlined search-input__icon">search</span>
+            <input type="text" class="search-input__field" placeholder="Search knowledge...">
+          </div>
+          <button class="btn btn--icon" id="theme-toggle">
+            <span class="material-symbols-outlined">dark_mode</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="app-main" id="main-content">
+        <!-- Dashboard View (Default) -->
+        <section id="view-dashboard" class="view animate-fade-in">
+          <!-- Stats -->
+          <div class="stats-grid" style="margin-bottom: var(--md-sys-spacing-xl);">
+            <div class="stat-card animate-slide-up" style="animation-delay: 0ms;">
+              <div class="stat-card__value">1,247</div>
+              <div class="stat-card__label">Entities</div>
+            </div>
+            <div class="stat-card animate-slide-up" style="animation-delay: 50ms;">
+              <div class="stat-card__value">5,892</div>
+              <div class="stat-card__label">Claims</div>
+            </div>
+            <div class="stat-card animate-slide-up" style="animation-delay: 100ms;">
+              <div class="stat-card__value">312</div>
+              <div class="stat-card__label">Procedures</div>
+            </div>
+            <div class="stat-card animate-slide-up" style="animation-delay: 150ms;">
+              <div class="stat-card__value" style="color: var(--md-sys-color-tertiary);">23</div>
+              <div class="stat-card__label">Knowledge Gaps</div>
+            </div>
+          </div>
+
+          <!-- Content Grid -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--md-sys-spacing-lg);">
+            <!-- Recent Activity -->
+            <div class="card card--elevated animate-slide-up" style="animation-delay: 200ms;">
+              <h2 class="text-title-large" style="margin-bottom: var(--md-sys-spacing-md);">Recent Activity</h2>
+              <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-sm);">
+                <div class="entity-card card card--outlined" style="padding: var(--md-sys-spacing-md);">
+                  <div class="entity-card__header">
+                    <span class="chip chip--entity">Entity</span>
+                    <span class="entity-card__name">LMDB Database</span>
+                  </div>
+                  <div class="entity-card__description">Lightning Memory-Mapped Database for high-performance storage
+                  </div>
+                  <div class="entity-card__meta">
+                    <span>3 claims</span>
+                    <span>2 sources</span>
+                    <span>Added 5m ago</span>
+                  </div>
+                </div>
+
+                <div class="claim-card card card--outlined" style="padding: var(--md-sys-spacing-md);">
+                  <div class="entity-card__header">
+                    <span class="chip chip--claim">Claim</span>
+                    <span class="entity-card__name">PKCE prevents authorization code interception</span>
+                  </div>
+                  <div class="entity-card__meta">
+                    <span>Confidence: 95%</span>
+                    <span>Source: OAuth RFC</span>
+                  </div>
+                </div>
+
+                <div class="procedure-card card card--outlined" style="padding: var(--md-sys-spacing-md);">
+                  <div class="entity-card__header">
+                    <span class="chip chip--procedure">Procedure</span>
+                    <span class="entity-card__name">How to implement OAuth PKCE flow</span>
+                  </div>
+                  <div class="entity-card__meta">
+                    <span>5 steps</span>
+                    <span>Updated 1h ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gaps & Alerts -->
+            <div class="card animate-slide-up" style="animation-delay: 250ms;">
+              <h2 class="text-title-large" style="margin-bottom: var(--md-sys-spacing-md);">
+                <span style="display: flex; align-items: center; gap: var(--md-sys-spacing-xs);">
+                  <span class="material-symbols-outlined" style="color: var(--md-sys-color-tertiary);">warning</span>
+                  Knowledge Gaps
+                </span>
+              </h2>
+              <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-sm);">
+                <div class="gap-card card" style="padding: var(--md-sys-spacing-md);">
+                  <div class="text-body-medium">"Temporal reasoning" referenced but undefined</div>
+                  <button class="btn btn--text" style="margin-top: var(--md-sys-spacing-xs);">Resolve</button>
+                </div>
+                <div class="gap-card card" style="padding: var(--md-sys-spacing-md);">
+                  <div class="text-body-medium">Conflicting dates for "Project launch"</div>
+                  <button class="btn btn--text" style="margin-top: var(--md-sys-spacing-xs);">Review</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Graph View -->
+        <section id="view-graph" class="view" style="display: none;">
+          <div class="card card--elevated" style="height: calc(100vh - 160px);">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--md-sys-spacing-md);">
+              <h2 class="text-title-large">Knowledge Graph</h2>
+              <div style="display: flex; gap: var(--md-sys-spacing-xs);">
+                <button class="btn btn--outlined">Force Layout</button>
+                <button class="btn btn--outlined">Hierarchical</button>
+                <button class="btn btn--outlined">Radial</button>
+              </div>
+            </div>
+            <div id="cytoscape-container"
+              style="height: calc(100% - 60px); background: var(--md-sys-color-surface-container); border-radius: var(--md-sys-shape-corner-medium);">
+            </div>
+          </div>
+        </section>
+
+        <!-- Terminal View -->
+        <section id="view-terminal" class="view" style="display: none;">
+          <div class="terminal-container" style="height: calc(100vh - 160px);">
+            <div class="terminal-header">
+              <div class="terminal-header__dot terminal-header__dot--red"></div>
+              <div class="terminal-header__dot terminal-header__dot--yellow"></div>
+              <div class="terminal-header__dot terminal-header__dot--green"></div>
+              <span style="margin-left: var(--md-sys-spacing-sm); color: rgba(255,255,255,0.5);">inception@local</span>
+            </div>
+            <div id="terminal" class="terminal-body">
+              <div style="color: var(--md-sys-color-secondary);">Welcome to Inception CLI v1.0.0</div>
+              <div style="color: var(--md-sys-color-on-surface-variant);">Type 'help' for available commands.</div>
+              <div style="margin-top: var(--md-sys-spacing-md);">
+                <span style="color: var(--md-sys-color-primary);">inception&gt;</span>
+                <span class="animate-pulse" style="margin-left: 4px;">▌</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings View -->
+        <section id="view-settings" class="view" style="display: none;">
+          <div style="max-width: 800px;">
+            <div class="card card--elevated" style="margin-bottom: var(--md-sys-spacing-lg);">
+              <h2 class="text-title-large" style="margin-bottom: var(--md-sys-spacing-lg);">
+                <span style="display: flex; align-items: center; gap: var(--md-sys-spacing-sm);">
+                  <span class="material-symbols-outlined">key</span>
+                  Authentication
+                </span>
+              </h2>
+
+              <!-- Claude -->
+              <div class="card card--filled" style="margin-bottom: var(--md-sys-spacing-md);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div class="text-title-medium" style="margin-bottom: var(--md-sys-spacing-xxs);">Claude</div>
+                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-xs);">
+                      <span class="badge badge--secondary">MAX</span>
+                      <span class="text-body-small" style="color: var(--md-sys-color-on-surface-variant);">Opus 4.5,
+                        Sonnet 4.5</span>
+                    </div>
+                  </div>
+                  <button class="btn btn--outlined">Disconnect</button>
+                </div>
+              </div>
+
+              <!-- Gemini -->
+              <div class="card card--filled" style="margin-bottom: var(--md-sys-spacing-md);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div class="text-title-medium" style="margin-bottom: var(--md-sys-spacing-xxs);">Gemini</div>
+                    <div style="display: flex; align-items: center; gap: var(--md-sys-spacing-xs);">
+                      <span class="badge" style="background: var(--md-sys-color-primary);">PRO</span>
+                      <span class="text-body-small" style="color: var(--md-sys-color-on-surface-variant);">Pro 3, Flash
+                        3</span>
+                    </div>
+                  </div>
+                  <button class="btn btn--outlined">Disconnect</button>
+                </div>
+              </div>
+
+              <!-- OpenAI -->
+              <div class="card card--outlined">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div class="text-title-medium"
+                      style="margin-bottom: var(--md-sys-spacing-xxs); color: var(--md-sys-color-on-surface-variant);">
+                      OpenAI</div>
+                    <span class="text-body-small" style="color: var(--md-sys-color-on-surface-variant);">Not
+                      connected</span>
+                  </div>
+                  <button class="btn btn--filled">Connect</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Theme -->
+            <div class="card card--elevated">
+              <h2 class="text-title-large" style="margin-bottom: var(--md-sys-spacing-md);">
+                <span style="display: flex; align-items: center; gap: var(--md-sys-spacing-sm);">
+                  <span class="material-symbols-outlined">palette</span>
+                  Appearance
+                </span>
+              </h2>
+              <div style="display: flex; gap: var(--md-sys-spacing-sm);">
+                <button class="chip chip--selected" id="theme-dark">Dark</button>
+                <button class="chip" id="theme-light">Light</button>
+                <button class="chip" id="theme-system">System</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Explorer View -->
+        <section id="view-explorer" class="view" style="display: none;">
+          <div
+            style="display: grid; grid-template-columns: 300px 1fr; gap: var(--md-sys-spacing-lg); height: calc(100vh - 160px);">
+            <!-- Filters -->
+            <div class="card" style="overflow-y: auto;">
+              <h3 class="text-title-medium" style="margin-bottom: var(--md-sys-spacing-md);">Filters</h3>
+              <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-sm);">
+                <div class="chip chip--entity chip--selected">Entities (1,247)</div>
+                <div class="chip chip--claim">Claims (5,892)</div>
+                <div class="chip chip--procedure">Procedures (312)</div>
+              </div>
+
+              <h3 class="text-title-medium"
+                style="margin-top: var(--md-sys-spacing-lg); margin-bottom: var(--md-sys-spacing-md);">Sources</h3>
+              <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-xs);">
+                <label style="display: flex; align-items: center; gap: var(--md-sys-spacing-xs);">
+                  <input type="checkbox" checked> YouTube (23)
+                </label>
+                <label style="display: flex; align-items: center; gap: var(--md-sys-spacing-xs);">
+                  <input type="checkbox" checked> PDFs (15)
+                </label>
+                <label style="display: flex; align-items: center; gap: var(--md-sys-spacing-xs);">
+                  <input type="checkbox" checked> Web (42)
+                </label>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div style="display: flex; flex-direction: column; gap: var(--md-sys-spacing-md); overflow-y: auto;">
+              <div class="entity-card card card--elevated" style="padding: var(--md-sys-spacing-lg);">
+                <div class="entity-card__header">
+                  <span class="chip chip--entity">Entity</span>
+                </div>
+                <div class="entity-card__name text-headline-small" style="margin-bottom: var(--md-sys-spacing-sm);">
+                  OAuth 2.0 Protocol</div>
+                <div class="entity-card__description">Industry-standard authorization framework enabling secure
+                  delegated access</div>
+                <div class="entity-card__meta" style="margin-top: var(--md-sys-spacing-md);">
+                  <span>12 claims</span>
+                  <span>4 procedures</span>
+                  <span>8 sources</span>
+                </div>
+              </div>
+
+              <div class="entity-card card card--elevated" style="padding: var(--md-sys-spacing-lg);">
+                <div class="entity-card__header">
+                  <span class="chip chip--entity">Entity</span>
+                </div>
+                <div class="entity-card__name text-headline-small" style="margin-bottom: var(--md-sys-spacing-sm);">PKCE
+                  Extension</div>
+                <div class="entity-card__description">Proof Key for Code Exchange - security extension for public OAuth
+                  clients</div>
+                <div class="entity-card__meta" style="margin-top: var(--md-sys-spacing-md);">
+                  <span>5 claims</span>
+                  <span>2 procedures</span>
+                  <span>3 sources</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" id="upload-fab">
+      <span class="material-symbols-outlined">add</span>
+    </button>
+  </div>
+
+  <!-- KINESIS: State Machine + View Transitions -->
+  <script type="module" src="/src/app/state.js"></script>
+
+  <script>
+    // Fallback for non-module environments
+    if (!window.InceptionState) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        setTimeout(() => loadingScreen.classList.remove('visible'), 500);
+      });
+    }
+  </script>
+</body>
+
+</html>

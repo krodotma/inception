@@ -1,0 +1,376 @@
+/**
+ * KINESIS: View Transition Styles
+ * 
+ * CSS for View Transitions API integration.
+ * Handles directional navigation, shared elements, and reduced motion.
+ * 
+ * Persona: KINESIS (Motion Systems Engineer)
+ */
+
+/* =============================================================================
+ * VIEW TRANSITION DEFAULTS
+ * ============================================================================= */
+
+/* Enable cross-document transitions (MPA) */
+@view-transition {
+    navigation: auto;
+}
+
+/* Root transition group */
+::view-transition-group(root) {
+    animation-duration: var(--md-motion-duration-medium-2, 300ms);
+    animation-timing-function: var(--md-motion-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+}
+
+/* =============================================================================
+ * DIRECTIONAL NAVIGATION
+ * ============================================================================= */
+
+/* Forward navigation (default) - slide in from right */
+[data-nav-direction="forward"]::view-transition-old(root) {
+    animation: slide-out-left var(--md-motion-duration-medium-1, 250ms) var(--md-motion-easing-emphasized-accelerate, cubic-bezier(0.3, 0, 0.8, 0.15));
+}
+
+[data-nav-direction="forward"]::view-transition-new(root) {
+    animation: slide-in-right var(--md-motion-duration-medium-3, 350ms) var(--md-motion-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1));
+}
+
+/* Back navigation - slide in from left */
+[data-nav-direction="back"]::view-transition-old(root) {
+    animation: slide-out-right var(--md-motion-duration-medium-1, 250ms) var(--md-motion-easing-emphasized-accelerate);
+}
+
+[data-nav-direction="back"]::view-transition-new(root) {
+    animation: slide-in-left var(--md-motion-duration-medium-3, 350ms) var(--md-motion-easing-emphasized-decelerate);
+}
+
+/* =============================================================================
+ * SHARED ELEMENT TRANSITIONS
+ * ============================================================================= */
+
+/* Entity hero morph */
+::view-transition-group(entity-hero) {
+    animation-duration: var(--md-motion-duration-long-1, 450ms);
+    animation-timing-function: var(--md-motion-easing-emphasized);
+}
+
+::view-transition-old(entity-hero),
+::view-transition-new(entity-hero) {
+    mix-blend-mode: normal;
+    object-fit: cover;
+}
+
+/* Graph node morph */
+::view-transition-group(graph-node) {
+    animation-duration: var(--md-motion-duration-medium-2, 300ms);
+}
+
+/* Card to detail morph */
+::view-transition-group(card-hero) {
+    animation-duration: var(--md-motion-duration-long-2, 500ms);
+    animation-timing-function: var(--md-motion-easing-emphasized);
+}
+
+/* =============================================================================
+ * TRANSITION KEYFRAMES
+ * ============================================================================= */
+
+@keyframes slide-out-left {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(-30%);
+    }
+}
+
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(30%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-out-right {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(30%);
+    }
+}
+
+@keyframes slide-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-30%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scale-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scale-fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+/* =============================================================================
+ * SIDEBAR STATE TRANSITIONS
+ * ============================================================================= */
+
+.sidebar {
+    transition:
+        width var(--md-motion-duration-medium-2, 300ms) var(--md-motion-easing-emphasized),
+        transform var(--md-motion-duration-medium-2, 300ms) var(--md-motion-easing-emphasized);
+    will-change: width, transform;
+}
+
+.sidebar[data-state="expanded"] {
+    width: var(--sidebar-width, 280px);
+    transform: translateX(0);
+}
+
+.sidebar[data-state="collapsed"] {
+    width: var(--sidebar-collapsed-width, 72px);
+    transform: translateX(0);
+}
+
+.sidebar[data-state="hidden"] {
+    width: var(--sidebar-collapsed-width, 72px);
+    transform: translateX(-100%);
+}
+
+.sidebar[data-state="collapsing"],
+.sidebar[data-state="expanding"],
+.sidebar[data-state="hiding"] {
+    pointer-events: none;
+}
+
+/* Sidebar content fade */
+.sidebar-label {
+    transition: opacity var(--md-motion-duration-short-4, 200ms) var(--md-motion-easing-emphasized);
+}
+
+.sidebar[data-state="collapsed"] .sidebar-label,
+.sidebar[data-state="collapsing"] .sidebar-label {
+    opacity: 0;
+}
+
+/* =============================================================================
+ * OVERLAY STATE TRANSITIONS
+ * ============================================================================= */
+
+.overlay {
+    opacity: 0;
+    transform: translateY(100%);
+    transition:
+        opacity var(--md-motion-duration-medium-2, 300ms) var(--md-motion-easing-emphasized),
+        transform var(--md-motion-duration-medium-3, 350ms) var(--md-motion-easing-emphasized);
+    will-change: opacity, transform;
+}
+
+.overlay.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.overlay[data-state="opening"] {
+    animation: slide-up-fade-in var(--md-motion-duration-medium-3, 350ms) var(--md-motion-easing-emphasized-decelerate);
+}
+
+.overlay[data-state="closing"] {
+    animation: slide-down-fade-out var(--md-motion-duration-medium-1, 250ms) var(--md-motion-easing-emphasized-accelerate);
+}
+
+.overlay[data-state="peek"] {
+    transform: translateY(calc(100% - 200px));
+}
+
+@keyframes slide-up-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-down-fade-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+}
+
+/* =============================================================================
+ * LOADING SCREEN TRANSITIONS
+ * ============================================================================= */
+
+.loading-screen {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity var(--md-motion-duration-long-1, 450ms) var(--md-motion-easing-emphasized),
+        visibility 0s var(--md-motion-duration-long-1, 450ms);
+}
+
+.loading-screen.visible {
+    opacity: 1;
+    visibility: visible;
+    transition:
+        opacity var(--md-motion-duration-medium-2, 300ms) var(--md-motion-easing-emphasized),
+        visibility 0s;
+}
+
+.loading-screen.fade-out {
+    opacity: 0;
+    transition: opacity var(--md-motion-duration-long-1, 450ms) var(--md-motion-easing-emphasized);
+}
+
+/* =============================================================================
+ * VIEW TRANSITIONS
+ * ============================================================================= */
+
+.view {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+        opacity var(--md-motion-duration-medium-2, 300ms) var(--md-motion-easing-emphasized),
+        transform var(--md-motion-duration-medium-3, 350ms) var(--md-motion-easing-emphasized-decelerate);
+}
+
+.view.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =============================================================================
+ * NAV ITEM TRANSITIONS
+ * ============================================================================= */
+
+.nav-item {
+    transition:
+        background-color var(--md-motion-duration-short-4, 200ms) var(--md-motion-easing-emphasized),
+        color var(--md-motion-duration-short-4, 200ms) var(--md-motion-easing-emphasized);
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--md-sys-color-secondary-container);
+    border-radius: var(--md-sys-shape-corner-full, 100px);
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition:
+        opacity var(--md-motion-duration-short-4, 200ms) var(--md-motion-easing-emphasized),
+        transform var(--md-motion-duration-medium-2, 300ms) var(--md-motion-easing-emphasized);
+}
+
+.nav-item.active::before {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+/* =============================================================================
+ * CARD INTERACTIONS
+ * ============================================================================= */
+
+.stat-card,
+.entity-card,
+.gap-card {
+    transition:
+        transform var(--md-motion-duration-short-4, 200ms) var(--md-motion-easing-emphasized),
+        box-shadow var(--md-motion-duration-short-4, 200ms) var(--md-motion-easing-emphasized);
+}
+
+.stat-card:hover,
+.entity-card:hover,
+.gap-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--md-sys-elevation-level2);
+}
+
+.stat-card:active,
+.entity-card:active,
+.gap-card:active {
+    transform: translateY(0);
+    transition-duration: var(--md-motion-duration-short-2, 100ms);
+}
+
+/* =============================================================================
+ * REDUCED MOTION
+ * ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+
+    .sidebar {
+        transition: none;
+    }
+
+    .overlay {
+        transition: none;
+    }
+
+    .view {
+        transition: none;
+        transform: none;
+    }
+}

@@ -1,0 +1,121 @@
+[project]
+name = "inception"
+version = "2.0.0"
+description = "Knowledge compiler with temporal reasoning and autonomous gap resolution"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Kroma" }]
+keywords = [
+    "knowledge-graph",
+    "temporal-reasoning",
+    "multi-modal",
+    "llm",
+    "extraction",
+    "autonomous-agents",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    # Core
+    "lmdb>=1.4.0",
+    "numpy>=1.26.0",
+    
+    # LLM & Vector
+    "httpx>=0.27.0",
+    "tiktoken>=0.5.0",
+    
+    # Web API
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "websockets>=12.0",
+    "pydantic>=2.5.0",
+    
+    # TUI
+    "textual>=0.47.0",
+    "rich>=13.7.0",
+    
+    # Auth
+    "keyring>=24.3.0",
+    "cryptography>=41.0.0",
+    
+    # CLI
+    "click>=8.1.0",
+    "typer>=0.9.0",
+    
+    # Media
+    "yt-dlp>=2024.1.0",
+    "whisper>=1.1.0",
+    "PyPDF2>=3.0.0",
+    
+    # Utils
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-httpx>=0.30.0",
+    "mypy>=1.8.0",
+    "ruff>=0.2.0",
+    "black>=24.1.0",
+    "pre-commit>=3.6.0",
+]
+
+vision = [
+    "Pillow>=10.2.0",
+    "opencv-python>=4.9.0",
+]
+
+[project.scripts]
+inception = "inception.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/kroma/inception"
+Documentation = "https://github.com/kroma/inception#readme"
+Repository = "https://github.com/kroma/inception"
+
+[build-system]
+requires = ["setuptools>=69.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["inception*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.black]
+target-version = ["py311"]
+line-length = 100

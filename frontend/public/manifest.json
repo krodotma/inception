@@ -1,0 +1,48 @@
+{
+    "name": "Inception",
+    "short_name": "Inception",
+    "description": "Knowledge compiler with temporal reasoning and autonomous gap resolution",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1e1e2e",
+    "theme_color": "#89b4fa",
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "productivity",
+        "education",
+        "utilities"
+    ],
+    "orientation": "any",
+    "scope": "/",
+    "prefer_related_applications": false,
+    "shortcuts": [
+        {
+            "name": "Explore Graph",
+            "url": "/graph",
+            "description": "View knowledge graph"
+        },
+        {
+            "name": "Terminal",
+            "url": "/terminal",
+            "description": "Open terminal"
+        },
+        {
+            "name": "Ingest",
+            "url": "/ingest",
+            "description": "Ingest new content"
+        }
+    ]
+}

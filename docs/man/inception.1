@@ -1,0 +1,148 @@
+.TH INCEPTION 1 "January 2026" "Inception 0.3.0" "User Commands"
+.SH NAME
+inception \- Knowledge compiler with temporal reasoning and autonomous gap resolution
+.SH SYNOPSIS
+.B inception
+[\fIOPTIONS\fR] \fICOMMAND\fR [\fIARGS\fR]...
+.SH DESCRIPTION
+Inception ingests video/audio/PDF/web, extracts structured knowledge into a temporal hypergraph, cross-validates claims, autonomously fills gaps, and exports executable Action Packs.
+.PP
+All processing runs locally with OAuth-based LLM access (no API keys required).
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-config " " \fIFILE\fR
+Path to configuration file
+.TP
+.BR \-\-offline
+Run in offline mode (cached models only)
+.TP
+.BR \-\-seed " " \fINUM\fR
+Random seed for reproducibility
+.TP
+.BR \-\-version
+Show version and exit
+.TP
+.BR \-h ", " \-\-help
+Show help message and exit
+.SH COMMANDS
+.SS Content Ingestion
+.TP
+.B ingest \fIURI\fR
+Ingest a source (URL or file path). Supports YouTube videos/channels/playlists, web pages, PDFs, and other document formats.
+.TP
+.B ingest-channel \fIURL\fR
+Ingest a YouTube channel incrementally with date filtering.
+.TP
+.B ingest-batch \fIFILE\fR
+Ingest multiple sources from a JSONL file.
+.SS Knowledge Exploration
+.TP
+.B query \fITEXT\fR
+Query the knowledge graph using natural language.
+.TP
+.B export \fITARGET\fR
+Export data from the knowledge graph (formats: json, csv, obsidian, markdown).
+.TP
+.B list-sources
+List all ingested sources.
+.TP
+.B stats
+Show database statistics.
+.TP
+.B gaps
+List knowledge gaps detected in the graph.
+.SS Interface Commands
+.TP
+.B serve
+Start the Inception API server.
+.TP
+.B tui
+Launch the Terminal User Interface.
+.TP
+.B explore
+Interactive knowledge exploration (alias for tui).
+.SS Authentication
+.TP
+.B auth setup \fIPROVIDER\fR
+Set up OAuth for a provider (claude, gemini, openai).
+.TP
+.B auth status
+Show authentication status for all providers.
+.TP
+.B auth revoke \fIPROVIDER\fR
+Revoke authentication for a provider.
+.SS Learning Engine
+.TP
+.B learn \-a \fIACTION\fR
+Execute a learning step with RLVR reward.
+.TP
+.B train
+Run DAPO+GRPO training update.
+.TP
+.B learning-stats
+Show learning engine statistics.
+.SS Development
+.TP
+.B doctor
+Check environment and dependencies.
+.TP
+.B test
+Run the test suite.
+.TP
+.B skillify \fITARGET\fR
+Convert a procedure node into an executable skill.
+.TP
+.B action-pack \fITARGET\fR
+Generate an Action Pack from a procedure.
+.TP
+.B completions \fISHELL\fR
+Generate shell completions (bash, zsh, fish).
+.TP
+.B version
+Show version information.
+.SH EXAMPLES
+.TP
+Ingest a YouTube video:
+.B inception ingest https://youtube.com/watch?v=abc123
+.TP
+Search the knowledge graph:
+.B inception query "How does OAuth authentication work?"
+.TP
+Export to Obsidian:
+.B inception export obsidian \-o ~/Documents/vault
+.TP
+Start the web interface:
+.B inception serve \-\-reload
+.TP
+Set up Claude OAuth:
+.B inception auth setup claude
+.SH ENVIRONMENT
+.TP
+.B INCEPTION_CONFIG
+Path to configuration file
+.TP
+.B INCEPTION_DATA
+Data directory (default: ~/.inception)
+.TP
+.B INCEPTION_OFFLINE
+Set to 1 for offline mode
+.SH FILES
+.TP
+.I ~/.inception/config.yaml
+User configuration file
+.TP
+.I ~/.inception/data.lmdb
+Knowledge graph database
+.TP
+.I ~/.inception/cache/
+Cached models and embeddings
+.SH SEE ALSO
+.BR inception-ingest (1),
+.BR inception-query (1),
+.BR inception-auth (1)
+.SH AUTHOR
+Written by the Inception team.
+.SH BUGS
+Report bugs at: https://github.com/kroma/inception/issues
+.SH COPYRIGHT
+MIT License. This is free software.
