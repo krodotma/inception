@@ -1166,6 +1166,7 @@ async def select_active_queries(request: ActiveQueryRequest):
 
 
 @app.websocket("/ws/terminal")
+async def terminal_websocket(websocket: WebSocket):
     """WebSocket endpoint for interactive terminal."""
     await websocket.accept()
     session_id = str(id(websocket))
