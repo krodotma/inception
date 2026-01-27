@@ -1462,7 +1462,128 @@ async def webui():
             </div>
         </main>
     </div>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
     <script>
+        // Color palette for entity types
+        const typeColors = {
+            'protocol': '#89b4fa',
+            'extension': '#a6e3a1', 
+            'standard': '#f9e2af',
+            'token_type': '#cba6f7',
+            'grant_type': '#fab387',
+            'component': '#94e2d5',
+            'database': '#f38ba8',
+            'default': '#cdd6f4'
+        };
+        
+        // Initialize Cytoscape graph
+        let cy = null;
+        
+        async function initGraph() {
+            const [entities, claims] = await Promise.all([
+                fetch('/api/entities').then(r => r.json()),
+                fetch('/api/claims').then(r => r.json())
+            ]);
+            
+            // Build nodes from entities
+            const nodes = entities.map(e => ({
+                data: {
+                    id: e.id,
+                    label: e.name,
+                    type: e.type || 'default',
+                    description: e.description || ''
+                }
+            }));
+            
+            // Build edges from claims (connecting related entities)
+            const edges = [];
+            claims.forEach(c => {
+                const entityIds = c.entity_ids || [];
+                for (let i = 0; i < entityIds.length - 1; i++) {
+                    edges.push({
+                        data: {
+                            id: `${c.id}-${i}`,
+                            source: entityIds[i],
+                            target: entityIds[i + 1],
+                            label: c.statement?.substring(0, 30) + '...',
+                            confidence: c.confidence || 0.5
+                        }
+                    });
+                }
+            });
+            
+            cy = cytoscape({
+                container: document.getElementById('graph-container'),
+                elements: { nodes, edges },
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'label': 'data(label)',
+                            'text-valign': 'bottom',
+                            'text-halign': 'center',
+                            'font-size': '10px',
+                            'color': '#cdd6f4',
+                            'text-margin-y': 8,
+                            'background-color': (ele) => typeColors[ele.data('type')] || typeColors.default,
+                            'width': 40,
+                            'height': 40,
+                            'border-width': 2,
+                            'border-color': '#45475a'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': (ele) => 1 + (ele.data('confidence') || 0.5) * 3,
+                            'line-color': '#585b70',
+                            'target-arrow-color': '#585b70',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier',
+                            'opacity': 0.7
+                        }
+                    },
+                    {
+                        selector: 'node:selected',
+                        style: {
+                            'border-width': 3,
+                            'border-color': '#89b4fa'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'cose',
+                    idealEdgeLength: 100,
+                    nodeOverlap: 20,
+                    refresh: 20,
+                    fit: true,
+                    padding: 30,
+                    randomize: false,
+                    componentSpacing: 100,
+                    nodeRepulsion: 400000,
+                    edgeElasticity: 100,
+                    nestingFactor: 5,
+                    gravity: 80,
+                    numIter: 1000,
+                    initialTemp: 200,
+                    coolingFactor: 0.95,
+                    minTemp: 1.0
+                }
+            });
+            
+            // Tooltip on hover
+            cy.on('mouseover', 'node', function(e) {
+                const node = e.target;
+                node.style('border-color', '#89b4fa');
+            });
+            cy.on('mouseout', 'node', function(e) {
+                const node = e.target;
+                if (!node.selected()) {
+                    node.style('border-color', '#45475a');
+                }
+            });
+        }
+        
         // Fetch stats
         fetch('/api/stats').then(r => r.json()).then(data => {
             document.getElementById('stat-entities').textContent = data.entities;
@@ -1471,18 +1592,22 @@ async def webui():
             document.getElementById('stat-sources').textContent = data.sources;
         });
         
-        // Fetch entities
+        // Fetch entities for sidebar
         fetch('/api/entities').then(r => r.json()).then(entities => {
             const list = document.getElementById('entity-list');
             entities.forEach(e => {
+                const color = typeColors[e.type] || typeColors.default;
                 list.innerHTML += `
-                    <div class="entity-item">
-                        <div class="entity-name">${e.name}</div>
-                        <div class="entity-desc">${e.description || ''}</div>
+                    <div class="entity-item" onclick="cy && cy.$('#${e.id}').select()">
+                        <div class="entity-name" style="color: ${color}">${e.name}</div>
+                        <div class="entity-desc">${e.description?.substring(0, 60) || ''}...</div>
                     </div>
                 `;
             });
         });
+        
+        // Initialize graph
+        initGraph();
         
         // Nav links
         document.querySelectorAll('.nav-link').forEach(link => {
