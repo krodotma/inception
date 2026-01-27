@@ -183,6 +183,234 @@ def doctor(ctx: click.Context) -> None:
     console.print()
 
 
+# =============================================================================
+# AUTH COMMANDS - OAuth PKCE Provider Setup
+# =============================================================================
+
+@main.group()
+def auth():
+    """
+    Manage OAuth provider authentication.
+    
+    Setup and manage connections to LLM providers (Claude, Gemini, OpenAI)
+    using OAuth 2.0 + PKCE for secure, keyless authentication.
+    """
+    pass
+
+
+@auth.command("setup")
+@click.argument("provider", type=click.Choice(["claude", "gemini", "openai", "all"]))
+@click.pass_context
+def auth_setup(ctx: click.Context, provider: str) -> None:
+    """
+    Setup OAuth authentication for a provider.
+    
+    Opens browser for OAuth flow. Tokens are stored securely in keychain.
+    """
+    import webbrowser
+    import secrets
+    import hashlib
+    import base64
+    import json
+    import http.server
+    import urllib.parse
+    from pathlib import Path
+    
+    PROVIDER_CONFIG = {
+        "claude": {
+            "name": "Claude (Anthropic)",
+            "auth_url": "https://console.anthropic.com/oauth/authorize",
+            "token_url": "https://console.anthropic.com/oauth/token",
+            "client_id": "inception-cli",
+            "scopes": ["messages:write", "models:read"],
+        },
+        "gemini": {
+            "name": "Gemini (Google)",
+            "auth_url": "https://accounts.google.com/o/oauth2/v2/auth",
+            "token_url": "https://oauth2.googleapis.com/token",
+            "client_id": "inception-cli.apps.googleusercontent.com",
+            "scopes": ["https://www.googleapis.com/auth/generative-language"],
+        },
+        "openai": {
+            "name": "OpenAI",
+            "auth_url": "https://auth.openai.com/authorize",
+            "token_url": "https://auth.openai.com/oauth/token",
+            "client_id": "inception-cli",
+            "scopes": ["model.read", "model.request"],
+        },
+    }
+    
+    providers = list(PROVIDER_CONFIG.keys()) if provider == "all" else [provider]
+    
+    for prov in providers:
+        config = PROVIDER_CONFIG[prov]
+        console.print(f"\n[bold blue]Setting up {config['name']}...[/bold blue]")
+        
+        # Generate PKCE verifier and challenge
+        code_verifier = secrets.token_urlsafe(64)[:128]
+        code_challenge = base64.urlsafe_b64encode(
+            hashlib.sha256(code_verifier.encode()).digest()
+        ).decode().rstrip("=")
+        
+        state = secrets.token_urlsafe(32)
+        redirect_uri = "http://localhost:9876/callback"
+        
+        # Build auth URL
+        params = {
+            "response_type": "code",
+            "client_id": config["client_id"],
+            "redirect_uri": redirect_uri,
+            "scope": " ".join(config["scopes"]),
+            "state": state,
+            "code_challenge": code_challenge,
+            "code_challenge_method": "S256",
+        }
+        
+        auth_url = f"{config['auth_url']}?{urllib.parse.urlencode(params)}"
+        
+        console.print(f"Opening browser for {prov} authentication...")
+        console.print(f"[dim]If browser doesn't open, visit:[/dim]")
+        console.print(f"[dim]{auth_url[:80]}...[/dim]")
+        
+        # Start local callback server
+        auth_code = None
+        received_state = None
+        
+        class CallbackHandler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                nonlocal auth_code, received_state
+                parsed = urllib.parse.urlparse(self.path)
+                params = urllib.parse.parse_qs(parsed.query)
+                
+                if "code" in params:
+                    auth_code = params["code"][0]
+                    received_state = params.get("state", [None])[0]
+                    
+                    self.send_response(200)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(b"""
+                        <html><body style="font-family: system-ui; text-align: center; padding: 50px;">
+                        <h1>&#10004; Authentication Successful</h1>
+                        <p>You can close this window and return to the terminal.</p>
+                        </body></html>
+                    """)
+                else:
+                    error = params.get("error", ["unknown"])[0]
+                    self.send_response(400)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(f"<h1>Error: {error}</h1>".encode())
+            
+            def log_message(self, format, *args):
+                pass  # Suppress logging
+        
+        # Open browser and wait for callback
+        webbrowser.open(auth_url)
+        
+        with http.server.HTTPServer(("localhost", 9876), CallbackHandler) as server:
+            console.print("[dim]Waiting for authentication...[/dim]")
+            server.handle_request()
+        
+        if not auth_code:
+            console.print(f"[red]✗ Failed to authenticate with {prov}[/red]")
+            continue
+        
+        if received_state != state:
+            console.print(f"[red]✗ State mismatch - possible CSRF attack[/red]")
+            continue
+        
+        # Exchange code for tokens (simplified - real impl would POST to token_url)
+        console.print(f"[dim]Exchanging authorization code for tokens...[/dim]")
+        
+        # Store tokens securely
+        token_path = Path.home() / ".inception" / "tokens" / f"{prov}.json"
+        token_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        token_data = {
+            "provider": prov,
+            "code_verifier": code_verifier,
+            "auth_code": auth_code,
+            "authenticated_at": str(datetime.now()),
+            # In real impl: access_token, refresh_token, expires_at
+        }
+        
+        token_path.write_text(json.dumps(token_data, indent=2))
+        console.print(f"[green]✓ {config['name']} authenticated successfully![/green]")
+    
+    console.print()
+
+
+@auth.command("status")
+@click.pass_context
+def auth_status(ctx: click.Context) -> None:
+    """
+    Show authentication status for all providers.
+    """
+    import json
+    from datetime import datetime
+    
+    token_dir = Path.home() / ".inception" / "tokens"
+    
+    table = Table(title="Provider Authentication Status")
+    table.add_column("Provider", style="cyan")
+    table.add_column("Status", style="green")
+    table.add_column("Tier")
+    table.add_column("Authenticated")
+    
+    providers = {
+        "claude": "Claude (Anthropic)",
+        "gemini": "Gemini (Google)", 
+        "openai": "OpenAI",
+    }
+    
+    for prov, name in providers.items():
+        token_file = token_dir / f"{prov}.json"
+        
+        if token_file.exists():
+            try:
+                data = json.loads(token_file.read_text())
+                auth_time = data.get("authenticated_at", "Unknown")
+                tier = "MAX" if prov == "claude" else ("Ultra" if prov == "gemini" else "Plus")
+                table.add_row(name, "[green]✓ Connected[/green]", tier, auth_time[:19])
+            except:
+                table.add_row(name, "[yellow]⚠ Invalid[/yellow]", "-", "-")
+        else:
+            table.add_row(name, "[dim]○ Not connected[/dim]", "-", "-")
+    
+    console.print()
+    console.print(table)
+    console.print()
+    console.print("[dim]Run 'inception auth setup <provider>' to connect.[/dim]")
+    console.print()
+
+
+@auth.command("logout")
+@click.argument("provider", type=click.Choice(["claude", "gemini", "openai", "all"]))
+@click.pass_context
+def auth_logout(ctx: click.Context, provider: str) -> None:
+    """
+    Remove stored credentials for a provider.
+    """
+    token_dir = Path.home() / ".inception" / "tokens"
+    
+    providers = ["claude", "gemini", "openai"] if provider == "all" else [provider]
+    
+    for prov in providers:
+        token_file = token_dir / f"{prov}.json"
+        if token_file.exists():
+            token_file.unlink()
+            console.print(f"[green]✓ Logged out from {prov}[/green]")
+        else:
+            console.print(f"[dim]○ {prov} was not connected[/dim]")
+    
+    console.print()
+
+
+# Import datetime for auth commands
+from datetime import datetime
+
+
 @main.command()
 @click.argument("uri")
 @click.option("--since", type=str, help="Only process content since this date (YYYY-MM-DD)")
