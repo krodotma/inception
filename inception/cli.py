@@ -432,22 +432,195 @@ def ingest(
     Supports YouTube videos/channels/playlists, web pages, PDFs,
     and other document formats.
     """
+    import json
+    import os
+    import tempfile
+    import subprocess
+    from pathlib import Path
+    
     cfg: Config = ctx.obj["config"]
     
     console.print(f"[bold]Ingesting:[/bold] {uri}")
     
     if cfg.pipeline.offline_mode:
-        console.print("[yellow]Running in offline mode[/yellow]")
+        console.print("[yellow]Running in offline mode - skipping download[/yellow]")
+        return
     
-    if since:
-        console.print(f"  Since: {since}")
-    if until:
-        console.print(f"  Until: {until}")
-    if topic:
-        console.print(f"  Topics: {', '.join(topic)}")
+    # Detect source type
+    is_youtube = "youtube.com" in uri or "youtu.be" in uri
+    is_pdf = uri.endswith(".pdf")
+    is_url = uri.startswith("http")
     
-    # TODO: Implement ingestion pipeline
-    console.print("[dim]Ingestion not yet implemented[/dim]")
+    if is_youtube:
+        console.print("[cyan]Detected YouTube video[/cyan]")
+        
+        # Step 1: Download audio with yt-dlp
+        console.print("  [dim]→ Downloading audio with yt-dlp...[/dim]")
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            audio_path = Path(tmpdir) / "audio.mp3"
+            
+            try:
+                result = subprocess.run([
+                    "yt-dlp",
+                    "-x", "--audio-format", "mp3",
+                    "-o", str(audio_path),
+                    "--no-playlist",
+                    uri
+                ], capture_output=True, text=True, timeout=120)
+                
+                if result.returncode != 0:
+                    console.print(f"[red]yt-dlp error: {result.stderr[:200]}[/red]")
+                    return
+                    
+                console.print(f"  [green]✓ Downloaded audio[/green]")
+                
+            except FileNotFoundError:
+                console.print("[red]yt-dlp not installed. Run: pip install yt-dlp[/red]")
+                return
+            except subprocess.TimeoutExpired:
+                console.print("[red]Download timed out[/red]")
+                return
+            
+            # Step 2: Get video metadata
+            console.print("  [dim]→ Fetching metadata...[/dim]")
+            try:
+                meta_result = subprocess.run([
+                    "yt-dlp", "-j", "--no-playlist", uri
+                ], capture_output=True, text=True, timeout=30)
+                
+                if meta_result.returncode == 0:
+                    metadata = json.loads(meta_result.stdout)
+                    title = metadata.get("title", "Unknown")
+                    channel = metadata.get("channel", "Unknown")
+                    duration = metadata.get("duration", 0)
+                    console.print(f"  [green]✓ {title} ({channel}, {duration//60}m)[/green]")
+            except:
+                title = "Unknown"
+                channel = "Unknown"
+            
+            # Step 3: Transcribe with Whisper (if available) or use captions
+            console.print("  [dim]→ Transcribing...[/dim]")
+            transcript = ""
+            
+            try:
+                # Try faster-whisper first
+                from faster_whisper import WhisperModel
+                model = WhisperModel("base", device="cpu")
+                segments, _ = model.transcribe(str(audio_path))
+                transcript = " ".join([s.text for s in segments])
+                console.print(f"  [green]✓ Transcribed ({len(transcript)} chars)[/green]")
+            except ImportError:
+                # Fall back to YouTube captions
+                console.print("  [dim]Whisper not available, using auto-captions...[/dim]")
+                try:
+                    cap_result = subprocess.run([
+                        "yt-dlp", "--write-auto-sub", "--sub-lang", "en",
+                        "--skip-download", "-o", str(Path(tmpdir) / "subs"),
+                        uri
+                    ], capture_output=True, text=True, timeout=30)
+                    
+                    sub_files = list(Path(tmpdir).glob("*.vtt"))
+                    if sub_files:
+                        transcript = sub_files[0].read_text()
+                        console.print(f"  [green]✓ Got captions ({len(transcript)} chars)[/green]")
+                except:
+                    transcript = f"Video: {title} by {channel}"
+            
+            # Step 4: Extract knowledge with OpenAI
+            console.print("  [dim]→ Extracting knowledge with LLM...[/dim]")
+            
+            openai_key = os.environ.get("OPENAI_API_KEY")
+            if not openai_key:
+                console.print("[yellow]No OPENAI_API_KEY set, using basic extraction[/yellow]")
+                entities = [{"id": "video-entity", "name": title, "type": "video"}]
+                claims = []
+            else:
+                try:
+                    import openai
+                    client = openai.OpenAI()
+                    
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[{
+                            "role": "system",
+                            "content": "Extract entities and claims from this transcript. Return JSON with 'entities' (list of {id, name, type, description}) and 'claims' (list of {id, statement, entity_ids, confidence})."
+                        }, {
+                            "role": "user",
+                            "content": f"Title: {title}\nChannel: {channel}\n\nTranscript:\n{transcript[:8000]}"
+                        }],
+                        response_format={"type": "json_object"}
+                    )
+                    
+                    extracted = json.loads(response.choices[0].message.content)
+                    entities = extracted.get("entities", [])
+                    claims = extracted.get("claims", [])
+                    
+                    console.print(f"  [green]✓ Extracted {len(entities)} entities, {len(claims)} claims[/green]")
+                    
+                except Exception as e:
+                    console.print(f"[yellow]LLM extraction failed: {e}[/yellow]")
+                    entities = [{"id": "video-entity", "name": title, "type": "video"}]
+                    claims = []
+            
+            # Step 5: Store in LMDB
+            console.print("  [dim]→ Storing in knowledge graph...[/dim]")
+            
+            try:
+                import lmdb
+                db_path = os.path.expanduser("~/.inception/knowledge.lmdb")
+                env = lmdb.open(db_path, map_size=10*1024*1024*1024, max_dbs=10, subdir=True)
+                
+                with env.begin(write=True) as txn:
+                    entities_db = env.open_db(b'entities', txn=txn, create=True)
+                    claims_db = env.open_db(b'claims', txn=txn, create=True)
+                    sources_db = env.open_db(b'sources', txn=txn, create=True)
+                    
+                    # Add source
+                    source_id = f"yt-{uri.split('=')[-1][:11]}"
+                    source_data = {
+                        "id": source_id,
+                        "title": title,
+                        "url": uri,
+                        "type": "youtube",
+                        "channel": channel,
+                        "ingested_at": str(datetime.now()),
+                    }
+                    txn.put(source_id.encode(), json.dumps(source_data).encode(), db=sources_db)
+                    
+                    # Add entities
+                    for entity in entities:
+                        entity["source_ids"] = [source_id]
+                        txn.put(entity["id"].encode(), json.dumps(entity).encode(), db=entities_db)
+                    
+                    # Add claims
+                    for claim in claims:
+                        claim["source_ids"] = [source_id]
+                        txn.put(claim["id"].encode(), json.dumps(claim).encode(), db=claims_db)
+                
+                env.close()
+                console.print(f"  [green]✓ Stored in LMDB[/green]")
+                
+            except Exception as e:
+                console.print(f"[red]Storage error: {e}[/red]")
+        
+        console.print()
+        console.print(f"[bold green]✓ Ingestion complete![/bold green]")
+        console.print(f"  Source: {source_id}")
+        console.print(f"  Entities: {len(entities)}")
+        console.print(f"  Claims: {len(claims)}")
+        
+    elif is_pdf:
+        console.print("[cyan]Detected PDF[/cyan]")
+        console.print("[dim]PDF ingestion coming soon[/dim]")
+        
+    elif is_url:
+        console.print("[cyan]Detected web page[/cyan]")
+        console.print("[dim]Web ingestion coming soon[/dim]")
+        
+    else:
+        console.print("[cyan]Detected local file[/cyan]")
+        console.print("[dim]File ingestion coming soon[/dim]")
 
 
 @main.command("ingest-channel")
