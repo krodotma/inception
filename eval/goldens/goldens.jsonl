@@ -1,0 +1,101 @@
+{"version": "1.0", "created": "2026-01-28", "description": "Seed golden examples for Inception evaluation", "categories": {"claims": 20, "entities": 15, "temporal": 10, "procedures": 5}}
+
+{"id": "claim-001", "category": "claims", "input": "OAuth 2.0 was released in October 2012 as RFC 6749.", "expected": {"claims": [{"subject": "OAuth 2.0", "predicate": "was released", "object": "October 2012", "modality": "assertion", "hedges": []}, {"subject": "OAuth 2.0", "predicate": "is documented in", "object": "RFC 6749", "modality": "assertion", "hedges": []}]}, "notes": "Multiple claims from single sentence"}
+
+{"id": "claim-002", "category": "claims", "input": "Access tokens typically expire after one hour.", "expected": {"claims": [{"subject": "Access tokens", "predicate": "expire", "object": "after one hour", "modality": "assertion", "hedges": ["typically"]}]}, "notes": "Hedge word detection"}
+
+{"id": "claim-003", "category": "claims", "input": "PKCE might prevent authorization code interception attacks.", "expected": {"claims": [{"subject": "PKCE", "predicate": "prevents", "object": "authorization code interception attacks", "modality": "possibility", "hedges": ["might"]}]}, "notes": "Possibility modality"}
+
+{"id": "claim-004", "category": "claims", "input": "Bearer tokens must be transmitted over HTTPS.", "expected": {"claims": [{"subject": "Bearer tokens", "predicate": "must be transmitted", "object": "over HTTPS", "modality": "necessity", "hedges": []}]}, "notes": "Necessity modality"}
+
+{"id": "claim-005", "category": "claims", "input": "Refresh tokens should not be sent to the browser.", "expected": {"claims": [{"subject": "Refresh tokens", "predicate": "should not be sent", "object": "to the browser", "modality": "negation", "hedges": []}]}, "notes": "Negation modality"}
+
+{"id": "claim-006", "category": "claims", "input": "According to RFC 6749, the authorization endpoint must support GET requests.", "expected": {"claims": [{"subject": "authorization endpoint", "predicate": "must support", "object": "GET requests", "modality": "necessity", "hedges": [], "attribution": "RFC 6749"}]}, "notes": "Source attribution"}
+
+{"id": "claim-007", "category": "claims", "input": "Some implementations use JWT for access tokens, while others prefer opaque tokens.", "expected": {"claims": [{"subject": "some implementations", "predicate": "use", "object": "JWT for access tokens", "modality": "assertion", "hedges": ["some"]}, {"subject": "others", "predicate": "prefer", "object": "opaque tokens", "modality": "assertion", "hedges": []}]}, "notes": "Contrastive claims"}
+
+{"id": "claim-008", "category": "claims", "input": "The client credentials grant is used for machine-to-machine authentication.", "expected": {"claims": [{"subject": "client credentials grant", "predicate": "is used for", "object": "machine-to-machine authentication", "modality": "assertion", "hedges": []}]}, "notes": "Purpose claim"}
+
+{"id": "claim-009", "category": "claims", "input": "Token introspection was standardized in RFC 7662.", "expected": {"claims": [{"subject": "Token introspection", "predicate": "was standardized in", "object": "RFC 7662", "modality": "assertion", "hedges": []}]}, "notes": "Document reference"}
+
+{"id": "claim-010", "category": "claims", "input": "OIDC extends OAuth 2.0 with an identity layer.", "expected": {"claims": [{"subject": "OIDC", "predicate": "extends", "object": "OAuth 2.0", "modality": "assertion", "hedges": []}, {"subject": "OIDC", "predicate": "adds", "object": "identity layer", "modality": "assertion", "hedges": []}]}, "notes": "Extension relationship"}
+
+{"id": "claim-011", "category": "claims", "input": "State parameters help prevent CSRF attacks.", "expected": {"claims": [{"subject": "State parameters", "predicate": "help prevent", "object": "CSRF attacks", "modality": "assertion", "hedges": []}]}, "notes": "Security claim"}
+
+{"id": "claim-012", "category": "claims", "input": "It is believed that OAuth 1.0 was more secure but harder to implement.", "expected": {"claims": [{"subject": "OAuth 1.0", "predicate": "was", "object": "more secure", "modality": "possibility", "hedges": ["believed"]}, {"subject": "OAuth 1.0", "predicate": "was", "object": "harder to implement", "modality": "possibility", "hedges": ["believed"]}]}, "notes": "Belief attribution"}
+
+{"id": "claim-013", "category": "claims", "input": "The implicit grant has been deprecated in OAuth 2.1.", "expected": {"claims": [{"subject": "implicit grant", "predicate": "has been deprecated", "object": "in OAuth 2.1", "modality": "assertion", "hedges": []}]}, "notes": "Deprecation claim"}
+
+{"id": "claim-014", "category": "claims", "input": "PKCE is required for public clients.", "expected": {"claims": [{"subject": "PKCE", "predicate": "is required for", "object": "public clients", "modality": "necessity", "hedges": []}]}, "notes": "Requirement"}
+
+{"id": "claim-015", "category": "claims", "input": "Token binding could improve security but is not widely adopted.", "expected": {"claims": [{"subject": "Token binding", "predicate": "could improve", "object": "security", "modality": "possibility", "hedges": ["could"]}, {"subject": "Token binding", "predicate": "is not", "object": "widely adopted", "modality": "negation", "hedges": []}]}, "notes": "Mixed modalities"}
+
+{"id": "claim-016", "category": "claims", "input": "DPoP provides sender-constrained access tokens.", "expected": {"claims": [{"subject": "DPoP", "predicate": "provides", "object": "sender-constrained access tokens", "modality": "assertion", "hedges": []}]}, "notes": "Technical feature"}
+
+{"id": "claim-017", "category": "claims", "input": "Authorization servers may support multiple grant types.", "expected": {"claims": [{"subject": "Authorization servers", "predicate": "may support", "object": "multiple grant types", "modality": "possibility", "hedges": ["may"]}]}, "notes": "Capability claim"}
+
+{"id": "claim-018", "category": "claims", "input": "The nonce claim in ID tokens prevents replay attacks.", "expected": {"claims": [{"subject": "nonce claim in ID tokens", "predicate": "prevents", "object": "replay attacks", "modality": "assertion", "hedges": []}]}, "notes": "Security mechanism"}
+
+{"id": "claim-019", "category": "claims", "input": "Scopes define the access level requested by the client.", "expected": {"claims": [{"subject": "Scopes", "predicate": "define", "object": "access level requested by the client", "modality": "assertion", "hedges": []}]}, "notes": "Definition-like claim"}
+
+{"id": "claim-020", "category": "claims", "input": "The authorization code flow is generally considered the most secure.", "expected": {"claims": [{"subject": "authorization code flow", "predicate": "is considered", "object": "the most secure", "modality": "assertion", "hedges": ["generally"]}]}, "notes": "Consensus claim with hedge"}
+
+{"id": "entity-001", "category": "entities", "input": "OAuth 2.0 was developed by the IETF.", "expected": {"entities": [{"text": "OAuth 2.0", "type": "PROTOCOL", "wikidata_id": "Q1650915"}, {"text": "IETF", "type": "ORGANIZATION", "wikidata_id": "Q217082"}]}, "notes": "Protocol and org"}
+
+{"id": "entity-002", "category": "entities", "input": "Eran Hammer was an editor of the OAuth specification.", "expected": {"entities": [{"text": "Eran Hammer", "type": "PERSON"}, {"text": "OAuth specification", "type": "DOCUMENT"}]}, "notes": "Person and document"}
+
+{"id": "entity-003", "category": "entities", "input": "RFC 6749 defines the OAuth 2.0 Authorization Framework.", "expected": {"entities": [{"text": "RFC 6749", "type": "DOCUMENT", "dbpedia_id": "dbr:OAuth"}, {"text": "OAuth 2.0 Authorization Framework", "type": "PROTOCOL"}]}, "notes": "RFC reference"}
+
+{"id": "entity-004", "category": "entities", "input": "Google, Facebook, and Microsoft all support OAuth.", "expected": {"entities": [{"text": "Google", "type": "ORGANIZATION", "wikidata_id": "Q95"}, {"text": "Facebook", "type": "ORGANIZATION", "wikidata_id": "Q355"}, {"text": "Microsoft", "type": "ORGANIZATION", "wikidata_id": "Q2283"}]}, "notes": "Multiple orgs"}
+
+{"id": "entity-005", "category": "entities", "input": "The JSON Web Token standard is defined in RFC 7519.", "expected": {"entities": [{"text": "JSON Web Token", "type": "PROTOCOL", "wikidata_id": "Q28006654"}, {"text": "RFC 7519", "type": "DOCUMENT"}]}, "notes": "JWT reference"}
+
+{"id": "entity-006", "category": "entities", "input": "OpenID Connect was developed by the OpenID Foundation.", "expected": {"entities": [{"text": "OpenID Connect", "type": "PROTOCOL", "wikidata_id": "Q5123186"}, {"text": "OpenID Foundation", "type": "ORGANIZATION"}]}, "notes": "OIDC"}
+
+{"id": "entity-007", "category": "entities", "input": "PKCE stands for Proof Key for Code Exchange.", "expected": {"entities": [{"text": "PKCE", "type": "PROTOCOL"}, {"text": "Proof Key for Code Exchange", "type": "CONCEPT"}]}, "notes": "Acronym expansion"}
+
+{"id": "entity-008", "category": "entities", "input": "The token endpoint is typically at /oauth/token.", "expected": {"entities": [{"text": "token endpoint", "type": "API_ENDPOINT"}, {"text": "/oauth/token", "type": "URL_PATH"}]}, "notes": "API endpoint"}
+
+{"id": "entity-009", "category": "entities", "input": "Bearer tokens are defined in RFC 6750.", "expected": {"entities": [{"text": "Bearer tokens", "type": "CONCEPT"}, {"text": "RFC 6750", "type": "DOCUMENT"}]}, "notes": "Token type"}
+
+{"id": "entity-010", "category": "entities", "input": "The authorization server issues tokens to clients.", "expected": {"entities": [{"text": "authorization server", "type": "SYSTEM_COMPONENT"}, {"text": "tokens", "type": "CONCEPT"}, {"text": "clients", "type": "SYSTEM_COMPONENT"}]}, "notes": "OAuth components"}
+
+{"id": "entity-011", "category": "entities", "input": "HMAC-SHA256 is commonly used for token signatures.", "expected": {"entities": [{"text": "HMAC-SHA256", "type": "ALGORITHM"}]}, "notes": "Algorithm"}
+
+{"id": "entity-012", "category": "entities", "input": "The redirect_uri parameter specifies where to send the user.", "expected": {"entities": [{"text": "redirect_uri", "type": "PARAMETER"}]}, "notes": "Parameter"}
+
+{"id": "entity-013", "category": "entities", "input": "Access tokens grant access to protected resources.", "expected": {"entities": [{"text": "Access tokens", "type": "CONCEPT"}, {"text": "protected resources", "type": "CONCEPT"}]}, "notes": "Core concepts"}
+
+{"id": "entity-014", "category": "entities", "input": "The client_id identifies the application.", "expected": {"entities": [{"text": "client_id", "type": "PARAMETER"}, {"text": "application", "type": "SYSTEM_COMPONENT"}]}, "notes": "Client identifier"}
+
+{"id": "entity-015", "category": "entities", "input": "Refresh tokens are stored securely on the server.", "expected": {"entities": [{"text": "Refresh tokens", "type": "CONCEPT"}, {"text": "server", "type": "SYSTEM_COMPONENT"}]}, "notes": "Token storage"}
+
+{"id": "temporal-001", "category": "temporal", "input": "OAuth 1.0 was released in 2007, followed by OAuth 2.0 in 2012.", "expected": {"temporal_relations": [{"event_a": "OAuth 1.0 release", "event_b": "OAuth 2.0 release", "relation": "before"}, {"event": "OAuth 1.0 release", "timestamp": "2007"}, {"event": "OAuth 2.0 release", "timestamp": "2012"}]}, "notes": "Sequence with dates"}
+
+{"id": "temporal-002", "category": "temporal", "input": "Access tokens expire after one hour; refresh tokens last 30 days.", "expected": {"temporal_relations": [{"entity": "Access tokens", "duration": "1 hour"}, {"entity": "Refresh tokens", "duration": "30 days"}]}, "notes": "Duration comparison"}
+
+{"id": "temporal-003", "category": "temporal", "input": "Before requesting a token, the client must register.", "expected": {"temporal_relations": [{"event_a": "client registration", "event_b": "token request", "relation": "before"}]}, "notes": "Prerequisite sequence"}
+
+{"id": "temporal-004", "category": "temporal", "input": "The implicit grant was valid from 2012 to 2021.", "expected": {"temporal_relations": [{"entity": "implicit grant", "validity_start": "2012", "validity_end": "2021"}]}, "notes": "Validity window"}
+
+{"id": "temporal-005", "category": "temporal", "input": "Token refresh should occur before the access token expires.", "expected": {"temporal_relations": [{"event_a": "token refresh", "event_b": "access token expiration", "relation": "before"}]}, "notes": "Recommended sequence"}
+
+{"id": "temporal-006", "category": "temporal", "input": "Authorization codes are valid for approximately 10 minutes.", "expected": {"temporal_relations": [{"entity": "Authorization codes", "duration": "10 minutes", "precision": "approximate"}]}, "notes": "Approximate duration"}
+
+{"id": "temporal-007", "category": "temporal", "input": "PKCE was introduced after the discovery of authorization code interception.", "expected": {"temporal_relations": [{"event_a": "authorization code interception discovery", "event_b": "PKCE introduction", "relation": "before"}]}, "notes": "Causal sequence"}
+
+{"id": "temporal-008", "category": "temporal", "input": "Session tokens are refreshed every 15 minutes during active use.", "expected": {"temporal_relations": [{"entity": "Session tokens", "refresh_interval": "15 minutes", "condition": "during active use"}]}, "notes": "Periodic with condition"}
+
+{"id": "temporal-009", "category": "temporal", "input": "As of 2023, OAuth 2.1 is still a draft specification.", "expected": {"temporal_relations": [{"entity": "OAuth 2.1", "status": "draft", "as_of": "2023"}]}, "notes": "Point-in-time status"}
+
+{"id": "temporal-010", "category": "temporal", "input": "The token is validated before processing the request.", "expected": {"temporal_relations": [{"event_a": "token validation", "event_b": "request processing", "relation": "before"}]}, "notes": "Processing order"}
+
+{"id": "proc-001", "category": "procedures", "input": "To get an access token: 1) Redirect user to auth server, 2) User logs in, 3) Receive auth code, 4) Exchange code for token.", "expected": {"procedure": {"name": "OAuth Authorization Code Flow", "steps": [{"order": 1, "action": "Redirect user to auth server"}, {"order": 2, "action": "User logs in"}, {"order": 3, "action": "Receive authorization code"}, {"order": 4, "action": "Exchange code for token"}]}}, "notes": "Ordered steps"}
+
+{"id": "proc-002", "category": "procedures", "input": "If the token is expired, refresh it using the refresh token. Otherwise, use the existing token.", "expected": {"procedure": {"name": "Token Usage", "steps": [{"condition": "token is expired", "if_action": "refresh using refresh token", "else_action": "use existing token"}]}}, "notes": "Conditional"}
+
+{"id": "proc-003", "category": "procedures", "input": "Retry the request up to 3 times if a 503 error occurs.", "expected": {"procedure": {"name": "Retry Logic", "steps": [{"action": "request", "on_error": "503", "retry_count": 3}]}}, "notes": "Error handling with loop"}
+
+{"id": "proc-004", "category": "procedures", "input": "Before making API calls, ensure the client is registered and has valid credentials.", "expected": {"procedure": {"name": "API Preparation", "prerequisites": ["client is registered", "has valid credentials"], "then_action": "make API calls"}}, "notes": "Prerequisites"}
+
+{"id": "proc-005", "category": "procedures", "input": "When a 401 is received, check if token expired. If yes, refresh. If refresh fails, re-authenticate.", "expected": {"procedure": {"name": "401 Handler", "trigger": "401 received", "steps": [{"action": "check if token expired"}, {"condition": "expired", "if_action": "refresh token", "on_failure": "re-authenticate"}]}}, "notes": "Nested error handling"}
