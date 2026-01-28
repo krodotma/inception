@@ -1,443 +1,430 @@
-<p align="center">
-  <img src="docs/assets/logo.svg" alt="Inception" width="120" height="120">
-</p>
+<div align="center">
 
-<h1 align="center">Inception</h1>
+<img src="docs/assets/logo.svg" alt="Inception" width="140" height="140">
 
-<p align="center">
-  <strong>Local-First Knowledge Compiler for Multimodal Sources</strong>
-</p>
+# Inception
 
-<p align="center">
-  <a href="#what-inception-does">What It Does</a> •
-  <a href="#core-capabilities">Capabilities</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#learning-engine">Learning Engine</a>
-</p>
+**Local-First Knowledge Compiler for Multimodal Sources**
 
----
+*Transform scattered learning materials into an interconnected knowledge hypergraph—locally, privately, intelligently.*
 
-## What Inception Does
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![LMDB](https://img.shields.io/badge/storage-LMDB-00ADD8?style=flat-square&logo=databricks&logoColor=white)](https://www.symas.com/lmdb)
+[![Tests](https://img.shields.io/badge/tests-289%20passed-22C55E?style=flat-square&logo=pytest&logoColor=white)](tests/)
+[![License](https://img.shields.io/badge/license-MIT-A78BFA?style=flat-square)](LICENSE)
 
-Inception transforms unstructured learning materials—YouTube videos, web pages, PDFs, presentations—into a **temporal knowledge hypergraph** with claims, entities, procedures, and detected gaps, all stored locally in LMDB.
+[Capabilities](#capabilities) · [Architecture](#architecture) · [Learning Engine](#the-learning-engine) · [Quick Start](#quick-start) · [API Reference](#api-reference)
 
-```
-                         ┌──────────────────────────────────────┐
-                         │           YOUR KNOWLEDGE             │
-                         └──────────────────────────────────────┘
-                                          ▲
-                                          │
-    ┌────────────┐   ┌────────────┐   ┌───┴───────┐   ┌────────────┐
-    │  Ingest    │ → │  Extract   │ → │  Analyze  │ → │   Output   │
-    │  Sources   │   │  Content   │   │  Meaning  │   │  Actions   │
-    └────────────┘   └────────────┘   └───────────┘   └────────────┘
-       YouTube         Whisper ASR      Claim SPO       ActionPacks
-       Web Pages       Scene Detect     Entities        Skills
-       PDFs/Docs       OCR/VLM          Procedures      Obsidian
-                                        Gaps            Export
-```
+</div>
 
 ---
 
-## Core Capabilities
+## The Problem
 
-### 1. Multimodal Ingestion
+You watch a technical video. Read three blog posts. Skim an RFC. A week later, you remember *something* about OAuth tokens expiring—but where did you learn that? Was it from the RFC or the blog? Did the blog contradict the spec?
 
-| Source Type | Method | What Gets Extracted |
-|-------------|--------|---------------------|
-| **YouTube** | yt-dlp + Whisper | Timestamped transcript, keyframes, scene types |
-| **Web Pages** | Trafilatura | Clean text, metadata, publication dates |
-| **PDF/PPTX/DOCX** | pdfplumber, python-pptx | Text by page, figures, tables |
-| **Images** | VLM (LLaVA, GPT-4V) | Descriptions, diagrams, charts |
+Knowledge scatters. Context evaporates. Contradictions hide.
 
-### 2. Semantic Extraction
+## The Solution
 
-**Claims** — Subject-Predicate-Object triples with modality tracking:
+Inception ingests your learning materials—YouTube videos, web pages, PDFs, slide decks—and extracts a **temporal knowledge hypergraph**: entities, claims, procedures, and detected gaps, all anchored to their sources with timestamps and confidence scores.
+
+```mermaid
+flowchart LR
+    subgraph Sources["📥 Sources"]
+        YT[YouTube]
+        WEB[Web Pages]
+        PDF[Documents]
+        IMG[Images]
+    end
+    
+    subgraph Extraction["🔍 Extraction"]
+        ASR[Whisper ASR]
+        OCR[PaddleOCR]
+        VLM[Vision LLM]
+        NLP[spaCy NER]
+    end
+    
+    subgraph Knowledge["🧠 Knowledge Graph"]
+        E[Entities]
+        C[Claims]
+        P[Procedures]
+        G[Gaps]
+    end
+    
+    subgraph Output["📤 Outputs"]
+        AP[ActionPacks]
+        SK[Skills]
+        OB[Obsidian]
+    end
+    
+    Sources --> Extraction --> Knowledge --> Output
+```
+
+---
+
+## Capabilities
+
+### 🎯 Claim Extraction with SPO Decomposition
+
+Every factual statement becomes a structured claim with subject-predicate-object decomposition, modality tracking, and hedge detection:
+
 ```python
 Claim(
-    text="OAuth uses bearer tokens for authentication",
-    subject="OAuth",
-    predicate="uses",
-    object="bearer tokens for authentication",
-    modality="assertion",        # assertion | possibility | necessity | negation
-    hedges=["typically"],        # uncertainty markers
-    confidence=Confidence(0.92, 0.88)  # (aleatoric, epistemic)
+    text="OAuth 2.0 access tokens typically expire after one hour",
+    subject="OAuth 2.0 access tokens",
+    predicate="expire",
+    object="after one hour",
+    modality="assertion",
+    hedges=["typically"],
+    confidence=Confidence(aleatoric=0.92, epistemic=0.88),
+    source_span_nid=42,  # Linked to exact timestamp
 )
 ```
 
-**Entities** — Named entities clustered and linked to Wikidata/DBpedia:
-```python
-Entity(
-    text="OAuth 2.0",
-    entity_type="PROTOCOL",
-    normalized="oauth-2.0",
-    wikidata_id="Q643697",
-    confidence=0.94
-)
+### 🔗 Entity Linking to External Ontologies
+
+Entities are disambiguated and linked to Wikidata and DBpedia:
+
+```mermaid
+graph LR
+    M["OAuth 2.0<br/><small>mention in text</small>"]
+    W["wd:Q643697<br/><small>Wikidata</small>"]
+    D["dbr:OAuth<br/><small>DBpedia</small>"]
+    S["schema:Protocol<br/><small>Schema.org</small>"]
+    
+    M -->|linked| W
+    M -->|linked| D
+    M -->|typed| S
 ```
 
-**Procedures** — Step-by-step instructions with preconditions:
-```python
-Procedure(
-    title="Deploy OAuth Server",
-    goal="Set up a production OAuth authorization server",
-    steps=[
-        ProcedureStep(1, "Generate RSA key pair", action_verb="generate"),
-        ProcedureStep(2, "Configure JWKS endpoint", action_verb="configure"),
-        ...
-    ],
-    prerequisites=["Docker installed", "Domain configured"]
-)
+### ⏱️ Allen Temporal Reasoning
+
+Facts have validity windows. The system understands temporal relationships using Allen's 13 interval relations:
+
+```mermaid
+gantt
+    title Temporal Knowledge Validity
+    dateFormat YYYY
+    section OAuth Evolution
+    OAuth 1.0 valid        :done, 2007, 2012
+    OAuth 2.0 valid        :active, 2012, 2026
+    OAuth 2.1 draft        :2020, 2026
 ```
 
-**Gaps** — Detected uncertainties classified by type and severity:
-```python
-Gap(
-    gap_type=GapType.UNDEFINED_TERM,
-    description="'PKCE code_verifier' referenced but not defined",
-    context_text="Using PKCE flow with code_verifier...",
-    severity="major",
-    is_epistemic=True  # knowledge gap (vs. aleatoric = signal quality)
-)
-```
-
-### 3. Allen Temporal Reasoning
-
-The system understands time. Facts have validity windows taken from extracted temporal expressions:
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│ Allen's 13 Interval Relations                                   │
-├────────────────────────────────────────────────────────────────┤
-│  OAuth 1.0 spec ──────────────────                             │
-│                        OAuth 2.0 spec ────────────────────     │
-│                                                                │
-│  Relation: OAuth 1.0 PRECEDES OAuth 2.0                       │
-│  Inferred: OAuth 1.0 claims BEFORE OAuth 2.0 claims           │
-└────────────────────────────────────────────────────────────────┘
-```
-
-Query facts valid at a specific time:
-```bash
-curl "http://localhost:8000/api/entities/temporal?at=2020-01-01T00:00:00Z"
-```
-
-### 4. Multi-Source Fusion
-
-When the same concept appears in multiple sources, Inception fuses them:
-
-```
-Source 1 (RFC 6749):     "Access tokens expire after 1 hour"    [authority: 1.0]
-Source 2 (Blog post):    "Tokens typically expire in ~60 min"   [authority: 0.6]
-Source 3 (Tutorial):     "Access tokens last 1 hour"            [authority: 0.7]
-
-Fused Claim:
-  statement: "Access tokens expire after 1 hour"
-  confidence: 0.94 (Bayesian fusion)
-  source_count: 3
-  conflict_detected: false
-```
-
-**Conflict Resolution Strategies:**
-- `recency` — Trust newer sources
-- `authority` — Trust higher-authority sources (RFCs > blogs)
-- `consensus` — Trust majority agreement
-- `confidence` — Trust higher-confidence extractions
-
-### 5. Autonomous Gap Resolution
-
-When Inception detects a gap, it can autonomously research and fill it:
+Query what was true at any point in time:
 
 ```bash
-$ inception explore-gaps --auto --max-depth 1 --budget 0.50
-
-Found 3 unresolved gaps:
-  [undefined_term] "PKCE code_verifier" referenced but not defined
-  [missing_context] "How does PKCE prevent code interception?"
-  [incomplete_procedure] "Step 3 references undocumented config flag"
-
-Resolving gap: "PKCE code_verifier"...
-  → Searching DuckDuckGo: "PKCE code_verifier explained"
-  → Found: RFC 7636 Section 4.1
-  → Ingesting source...
-  → Extracted: code_verifier is a cryptographically random string...
-  ✓ Gap resolved. 1 new claim, 2 new entities added.
+curl "http://localhost:8000/api/entities/temporal?at=2010-06-15"
+# Returns: OAuth 1.0 entities (2.0 didn't exist yet)
 ```
 
-**Safety Rails:**
-- Max exploration depth (default: 2)
-- Rate limiting (default: 10 req/min)
-- Budget caps (default: $0.50/session)
-- Domain allowlist/blocklist
-- Human-in-the-loop mode (default: on)
+### 🔀 Multi-Source Bayesian Fusion
 
-### 6. Fact Validation
+When claims appear in multiple sources, Inception fuses them with Bayesian uncertainty quantification:
 
-Claims are validated against authoritative sources:
+| Source | Claim | Authority | Freshness |
+|--------|-------|-----------|-----------|
+| RFC 6749 | "Tokens expire in 3600s" | 1.0 | 0.7 |
+| Blog Post | "Tokens last about an hour" | 0.6 | 0.9 |
+| Tutorial | "Access tokens: 1 hour TTL" | 0.7 | 0.8 |
 
-```python
-from inception.enhance.agency.validator import FactValidator
+**Fused Result:** `"Access tokens expire in 3600 seconds (1 hour)"` — Confidence: **0.94**
 
-validator = FactValidator()
-result = validator.validate(
-    claim=Claim("OAuth 2.0 was published in October 2012"),
-    sources=["wikipedia", "wikidata"]
-)
+Conflict resolution strategies: `recency`, `authority`, `consensus`, `confidence`
 
-# ValidationResult(
-#     verified=True,
-#     evidence=["RFC 6749 published October 2012"],
-#     confidence=0.98,
-#     source="wikidata:Q643697"
-# )
+### 🔍 Autonomous Gap Resolution
+
+When Inception detects undefined terms or missing context, it can autonomously research and fill the gap:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Detected: Gap found
+    Detected --> Classified: Classify gap type
+    Classified --> Researching: Auto-research
+    Researching --> Ingesting: Found sources
+    Ingesting --> Resolved: Extracted knowledge
+    Resolved --> [*]: Gap closed
+    
+    Researching --> Manual: Budget exhausted
+    Manual --> [*]: Human intervention
 ```
 
-### 7. Procedure → Skill Synthesis
+**Safety rails:** Rate limiting, budget caps, domain allowlists, human-in-the-loop mode (default: on)
 
-Extracted procedures become executable skills:
+### 📜 Procedure → Executable Skill Synthesis
 
-```bash
-$ inception skillify "deploy-oauth-server" --output skills/
-
-# Generated: skills/deploy-oauth-server.md
-```
+Extracted procedures become executable SKILL.md files:
 
 ```yaml
 ---
 name: Deploy OAuth Server
-description: Set up a production OAuth authorization server
-tags: [devops, security, oauth]
+tags: [devops, security]
 difficulty: hard
 estimated_time: 2h
 ---
 
 ## Prerequisites
 - Docker installed
-- Domain configured with SSL
+- Domain with SSL configured
 
 ## Steps
 
 ### Step 1: Generate RSA Key Pair
-Generate a 2048-bit RSA key for signing tokens.
-**Parameters:**
-- `key_size`: 2048
+Generate a 2048-bit RSA key for JWT signing.
 
 ### Step 2: Configure JWKS Endpoint
+Expose the public key via /.well-known/jwks.json
+
+### Step 3: Initialize Token Service
 ...
 ```
 
-### 8. RheoMode Output Levels
+---
 
-Control the detail level of outputs:
+## The Learning Engine
 
-| Level | Name | Description |
-|-------|------|-------------|
-| 0 | Gist | 1-line summary |
-| 1 | Takeaways | Key points + actions |
-| 2 | Evidence | Evidence-linked claims |
-| 3 | Full | Complete deconstruction |
-| 4 | Skills | Derived executable skills |
+Inception continuously improves its extraction quality through a multi-strategy learning system:
 
-```bash
-inception action-pack "OAuth Security" --rheomode 2
+```mermaid
+flowchart TB
+    subgraph Core["Core Optimizers"]
+        DAPO["DAPO<br/><small>Dynamic Advantage PPO</small>"]
+        GRPO["GRPO<br/><small>Group Relative Policy</small>"]
+        RLVR["RLVR<br/><small>Verifiable Rewards</small>"]
+    end
+    
+    subgraph Advanced["Advanced (Planned)"]
+        DSPy["DSPy<br/><small>Declarative LLM Programming</small>"]
+        TG["TextGrad<br/><small>Differentiable Text</small>"]
+    end
+    
+    subgraph Selection["Policy Selection"]
+        GAP["GAP Policy<br/><small>Uncertainty-Guided</small>"]
+        AL["Active Learner<br/><small>Uncertainty Sampling</small>"]
+    end
+    
+    Core --> Selection
+    Advanced --> Selection
 ```
+
+### Current Optimizers
+
+| Optimizer | Purpose | Key Innovation |
+|-----------|---------|----------------|
+| **DAPO** | High-variance exploration | Dynamic clip range based on advantage variance |
+| **GRPO** | Preference ranking | Group-relative advantages without critic network |
+| **RLVR** | Ground-truth verification | Verifiable reward signals from source matching |
+| **GAP** | Uncertainty exploration | Prioritize actions that fill knowledge gaps |
+| **Active** | Sample selection | Query most informative samples |
+
+### Planned Integrations
+
+| Framework | Integration Point | Expected Improvement |
+|-----------|-------------------|---------------------|
+| [DSPy](https://dspy.ai/) | Extraction prompt optimization | +10% claim F1 via MIPROv2 |
+| [TextGrad](https://textgrad.com/) | Iterative claim refinement | +15% accuracy via textual backprop |
+| GRPO v2 | DeepSeek-style reasoning | Emergent self-verification |
 
 ---
 
 ## Architecture
 
-```
-inception/
-├── ingest/           # Source acquisition (YouTube, Web, Documents)
-│   ├── youtube.py        # yt-dlp integration
-│   ├── web.py            # trafilatura extraction
-│   └── documents.py      # PDF/PPTX/DOCX/XLSX
-│
-├── extract/          # Content extraction
-│   ├── transcription.py  # Whisper ASR
-│   ├── scenes.py         # PySceneDetect keyframes
-│   ├── ocr.py            # PaddleOCR/Tesseract
-│   └── alignment.py      # Multimodal temporal fusion
-│
-├── analyze/          # Semantic analysis
-│   ├── entities.py       # NER with spaCy
-│   ├── claims.py         # SPO extraction + modality
-│   ├── procedures.py     # Step extraction
-│   └── gaps.py           # Uncertainty detection
-│
-├── graph/            # Knowledge hypergraph
-│   └── builder.py        # Node/edge construction
-│
-├── enhance/          # Enhancement layers (100-step epic)
-│   ├── llm/              # LLM extraction (Ollama, OpenRouter, Cloud)
-│   ├── vectors/          # Embedding + ChromaDB vector search
-│   ├── vision/           # VLM analysis (LLaVA, GPT-4V, Claude)
-│   ├── agency/           # Agentic capabilities
-│   │   ├── explorer/         # Autonomous gap exploration
-│   │   ├── validator/        # Fact validation (Wikipedia, Wikidata)
-│   │   └── executor/         # Skill execution engine
-│   ├── synthesis/        # Knowledge synthesis
-│   │   ├── fusion/           # Multi-source Bayesian fusion
-│   │   ├── ontology/         # Wikidata/DBpedia linking
-│   │   └── temporal/         # Allen interval reasoning
-│   ├── operations/       # Operational features
-│   │   ├── sync/             # Incremental file watching
-│   │   ├── export/           # Obsidian/Markdown/JSON export
-│   │   └── tui/              # Terminal UI
-│   └── learning.py       # RL learning engine (DAPO/GRPO/RLVR)
-│
-├── db/               # LMDB storage
-│   └── records.py        # Schema: Source, Span, Node, Edge
-│
-├── query/            # Search engine
-│   └── engine.py         # Temporal, entity, claim, full-text search
-│
-├── skills/           # Skill synthesis
-│   └── synthesizer.py    # Procedure → executable SKILL.md
-│
-└── cli.py            # Click CLI (39k lines)
+```mermaid
+graph TB
+    subgraph Ingest["Acquisition Layer"]
+        I1[youtube.py]
+        I2[web.py]
+        I3[documents.py]
+    end
+    
+    subgraph Extract["Extraction Layer"]
+        E1[transcription.py]
+        E2[scenes.py]
+        E3[ocr.py]
+        E4[alignment.py]
+    end
+    
+    subgraph Analyze["Analysis Layer"]
+        A1[entities.py]
+        A2[claims.py]
+        A3[procedures.py]
+        A4[gaps.py]
+    end
+    
+    subgraph Enhance["Enhancement Layer"]
+        H1[llm/]
+        H2[vectors/]
+        H3[vision/]
+        H4[agency/]
+        H5[synthesis/]
+        H6[learning.py]
+    end
+    
+    subgraph Store["Storage"]
+        DB[(LMDB)]
+    end
+    
+    Ingest --> Extract --> Analyze --> Enhance --> DB
 ```
 
-### Database Schema (LMDB)
+### Enhancement Epic: 100 Steps Complete
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      LMDB Environment                            │
-├──────────┬──────────┬───────────┬───────────┬──────────────────┤
-│  sources │  spans   │   nodes   │   edges   │  graphtag→nid    │
-│(SourceRec│(SpanRec) │(NodeRec)  │(EdgeRec)  │  (deduplication) │
-├──────────┼──────────┼───────────┼───────────┼──────────────────┤
-│  tindex  │  pindex  │   meta    │           │                  │
-│(temporal)│ (page)   │(counters) │           │                  │
-└──────────┴──────────┴───────────┴───────────┴──────────────────┘
+| Tier | Components | Tests |
+|------|------------|-------|
+| **Tier 1: Intelligence** | LLM Extractor, Vector Index, Vision VLM | 80 |
+| **Tier 2: Agency** | Gap Explorer, Fact Validator, Execution Engine | 68 |
+| **Tier 3: Synthesis** | Multi-Source Fusion, Ontology Linker, Temporal Reasoner | 86 |
+| **Tier 4: Operations** | Incremental Sync, Export Pipeline, TUI | 55 |
 
-Node Types: ENTITY | CLAIM | PROCEDURE | GAP
-Edge Types: MENTIONS | SUPPORTS | CONTRADICTS | RELATED_TO
-```
+**Total: 289 tests passing**
 
----
+### Database Schema
 
-## Learning Engine
-
-Inception uses reinforcement learning to improve extraction quality over time:
-
-### DAPO (Dynamic Advantage Policy Optimization)
-Adaptive PPO with dynamic clip ranges based on advantage variance:
-```python
-dapo = DAPOOptimizer(clip_range=0.2, entropy_coef=0.01)
-dynamic_clip = dapo.compute_dynamic_clip(advantages)
-# Higher variance → wider clip → more exploration
-```
-
-### GRPO (Group Relative Policy Optimization)
-Groups experiences by action type, computes relative advantages within groups:
-```python
-grpo = GRPOOptimizer(group_size=32, top_k_ratio=0.25)
-grpo.add_experience(Experience(action="extract_claim", reward=0.8, ...))
-advantage = grpo.compute_group_advantage(exp)  # Relative to group baseline
-```
-
-### RLVR (Reinforcement Learning with Verifiable Rewards)
-Ground-truth verification for reward signals:
-```python
-rlvr = RLVREngine()
-reward = rlvr.compute_verified_reward(
-    action="extract_claim",
-    result={"statement": "OAuth uses bearer tokens"},
-    sources=[{"content": "The OAuth 2.0 protocol uses bearer tokens..."}]
-)
-# Positive if claim matches sources
-```
-
-### GAP Policy (Uncertainty-Guided Exploration)
-Prioritizes actions that fill knowledge gaps:
-```python
-gap_policy = GAPPolicy(exploration_weight=0.3)
-action, gap = gap_policy.select_action(gaps, available_actions)
-# High priority + high uncertainty → selected first
+```mermaid
+erDiagram
+    SOURCE ||--o{ SPAN : contains
+    SOURCE ||--o{ NODE : generates
+    NODE ||--o{ EDGE : connects
+    SPAN ||--o{ NODE : evidences
+    
+    SOURCE {
+        int nid PK
+        string uri
+        string title
+        enum source_type
+        datetime ingested_at
+    }
+    
+    SPAN {
+        int nid PK
+        int source_nid FK
+        int start_ms
+        int end_ms
+        string text
+    }
+    
+    NODE {
+        int nid PK
+        enum kind
+        json payload
+        float confidence_a
+        float confidence_e
+    }
+    
+    EDGE {
+        int from_nid FK
+        int to_nid FK
+        enum edge_type
+        float weight
+    }
 ```
 
-### Active Learner
-Selects most informative samples:
-```python
-learner = ActiveLearner(strategy="uncertainty")
-selected = learner.select_queries(candidates, num_queries=5)
-```
+**Node Types:** `ENTITY` | `CLAIM` | `PROCEDURE` | `GAP`
+
+**Edge Types:** `MENTIONS` | `SUPPORTS` | `CONTRADICTS` | `RELATED_TO`
 
 ---
 
 ## Quick Start
 
 ```bash
-# Clone and install
+# Install
 git clone https://github.com/krodotma/inception.git
-cd inception
-uv sync
+cd inception && uv sync
 
-# Check environment
+# Verify environment
 uv run inception doctor
 
 # Ingest a YouTube video
-uv run inception ingest "https://youtube.com/watch?v=oauth-explained"
+uv run inception ingest "https://youtube.com/watch?v=..."
 
-# Query your knowledge graph
-uv run inception query "What is OAuth?"
+# Query your knowledge
+uv run inception query "What is PKCE?"
 
 # Export to Obsidian
-uv run inception export obsidian -o ~/Documents/Vault/Inception
+uv run inception export obsidian -o ~/Vault/Inception
 
-# Generate ActionPack
-uv run inception action-pack "OAuth Security" --rheomode 2
-
-# Synthesize skills
-uv run inception skillify "deploy-oauth"
+# Generate skills from procedures
+uv run inception skillify --all
 ```
 
-### OAuth Provider Authentication
-
-Use your existing LLM subscriptions without API keys:
+### OAuth Authentication (Keyless LLM Access)
 
 ```bash
-inception auth setup claude    # Opens browser for Claude OAuth
-inception auth setup gemini    # Opens browser for Gemini OAuth
-inception auth status          # Show connection status
+inception auth setup claude   # Browser OAuth flow
+inception auth setup gemini   # Google OAuth flow
+inception auth status         # View connected providers
 ```
 
 ---
 
-## API Server
+## API Reference
+
+Start the server:
 
 ```bash
 uv run inception serve --port 8000
 ```
 
-**Endpoints:**
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/stats` | Database statistics |
-| `GET /api/entities` | List entities |
-| `GET /api/claims` | List claims |
-| `GET /api/gaps` | List detected gaps |
-| `GET /api/sources` | List ingested sources |
-| `POST /api/ingest` | Ingest a source |
-| `POST /api/query` | Query knowledge graph |
-| `GET /api/entities/temporal?at=<ISO8601>` | Temporal query |
-| `POST /api/graph/path` | Find path between nodes |
-| `POST /api/learning/step` | RL learning step |
-| `GET /api/learning/stats` | Learning engine stats |
+### Core Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/stats` | Database statistics |
+| `GET` | `/api/entities` | List all entities |
+| `GET` | `/api/claims` | List all claims |
+| `GET` | `/api/procedures` | List all procedures |
+| `GET` | `/api/gaps` | List detected gaps |
+| `GET` | `/api/sources` | List ingested sources |
+
+### Knowledge Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/ingest` | Ingest a source |
+| `POST` | `/api/query` | Natural language query |
+| `POST` | `/api/graph/path` | Find path between nodes |
+| `GET` | `/api/entities/temporal?at=` | Query at specific time |
+
+### Learning Engine
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/learning/step` | Execute learning step |
+| `POST` | `/api/learning/train` | Train on experiences |
+| `GET` | `/api/learning/stats` | Optimizer statistics |
+| `POST` | `/api/learning/gap/select` | GAP policy selection |
+
+---
+
+## RheoMode Output Levels
+
+Control the resolution of generated outputs:
+
+| Level | Name | What You Get |
+|-------|------|--------------|
+| 0 | **Gist** | One-line summary |
+| 1 | **Takeaways** | Key points + action items |
+| 2 | **Evidence** | Claims linked to sources |
+| 3 | **Full** | Complete knowledge deconstruction |
+| 4 | **Skills** | Executable skill definitions |
+
+```bash
+uv run inception action-pack "OAuth Security" --rheomode 2
+```
 
 ---
 
 ## Testing
 
 ```bash
-# Run all tests (289 passed)
+# Full suite
 uv run pytest
 
-# Run by category
+# By category
 uv run pytest tests/unit
-uv run pytest tests/integration
+uv run pytest tests/integration  
 uv run pytest tests/e2e
 
 # With coverage
@@ -448,24 +435,21 @@ uv run pytest --cov=inception --cov-report=term-missing
 
 ## Dependencies
 
-**Core:** Python 3.11+, LMDB, Click, Pydantic, Rich
-
-**Media:** yt-dlp, faster-whisper, PySceneDetect, OpenCV, PaddleOCR
-
-**NLP:** spaCy (en_core_web_sm)
-
-**Documents:** pdfplumber, python-pptx, python-docx, openpyxl
-
-**Enhancement:** sentence-transformers, chromadb, duckduckgo-search
-
----
-
-## License
-
-MIT
+| Category | Packages |
+|----------|----------|
+| **Core** | Python 3.11+, lmdb, click, pydantic, rich |
+| **Media** | yt-dlp, faster-whisper, pyscenedetect, opencv-python |
+| **NLP** | spacy, trafilatura |
+| **Documents** | pdfplumber, python-pptx, python-docx |
+| **Vectors** | sentence-transformers, chromadb |
+| **Learning** | (planned) dspy-ai, textgrad |
 
 ---
 
-<p align="center">
-  <em>Knowledge that compounds. Systems that learn. Intelligence that heals itself.</em>
-</p>
+<div align="center">
+
+*Knowledge that compounds. Systems that learn. Intelligence that heals itself.*
+
+**[GitHub](https://github.com/krodotma/inception)** · **[Documentation](docs/)** · **[API Reference](docs/API.md)**
+
+</div>
