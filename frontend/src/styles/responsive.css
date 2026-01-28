@@ -1,0 +1,299 @@
+/* ============================================================================
+ * GEMINI-2: Responsive Design System
+ * ============================================================================
+ * Mobile-first responsive breakpoints for Agent Auth overlay
+ * ============================================================================ */
+
+/* === Breakpoint Variables === */
+:root {
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+}
+
+/* === Base Mobile (< 640px) === */
+.agent-auth-overlay {
+    min-width: auto;
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    border-radius: 24px 24px 0 0;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.agent-auth-providers {
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.provider-card {
+    padding: 16px;
+}
+
+.agent-auth-header {
+    padding: 16px 20px;
+}
+
+.agent-auth-title {
+    font-size: 1.25rem;
+}
+
+.agent-auth-filters {
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.filter-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* === Small Tablets (640px+) === */
+@media (min-width: 640px) {
+    .agent-auth-overlay {
+        min-width: 400px;
+        max-width: 520px;
+        border-radius: 24px;
+        margin: 20px;
+    }
+
+    .agent-auth-providers {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .provider-card {
+        padding: 20px;
+    }
+}
+
+/* === Tablets (768px+) === */
+@media (min-width: 768px) {
+    .agent-auth-overlay {
+        max-width: 600px;
+        padding: 32px;
+    }
+
+    .agent-auth-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* === Desktop (1024px+) === */
+@media (min-width: 1024px) {
+    .agent-auth-overlay {
+        max-width: 680px;
+    }
+
+    .agent-auth-providers {
+        gap: 20px;
+    }
+
+    .provider-card:hover {
+        transform: translateY(-8px) scale(1.02);
+    }
+}
+
+/* === Large Desktop (1280px+) === */
+@media (min-width: 1280px) {
+    .agent-auth-providers {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================================================
+ * GEMINI-2: Accessibility Enhancements
+ * ============================================================================ */
+
+/* Focus States - High Visibility */
+.auth-button:focus-visible,
+.filter-btn:focus-visible,
+.provider-card:focus-visible,
+.agent-auth-close:focus-visible {
+    outline: 2px solid #8B5CF6;
+    outline-offset: 2px;
+}
+
+/* Focus Within - Card highlight */
+.provider-card:focus-within {
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5);
+}
+
+/* Skip Link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #8B5CF6;
+    color: white;
+    padding: 8px 16px;
+    z-index: 9999;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Screen Reader Only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .agent-auth-overlay {
+        border: 2px solid white;
+    }
+
+    .provider-card {
+        border: 2px solid currentColor;
+    }
+
+    .connection-badge {
+        border: 1px solid currentColor;
+    }
+
+    .auth-button {
+        border: 2px solid white;
+    }
+}
+
+/* Forced Colors Mode (Windows High Contrast) */
+@media (forced-colors: active) {
+    .agent-auth-backdrop {
+        background: Canvas;
+    }
+
+    .agent-auth-overlay {
+        border: 2px solid CanvasText;
+        background: Canvas;
+    }
+
+    .provider-card {
+        border: 1px solid CanvasText;
+    }
+
+    .auth-button {
+        border: 1px solid ButtonText;
+    }
+
+    .connection-badge.connected {
+        background: Highlight;
+        color: HighlightText;
+    }
+}
+
+/* ============================================================================
+ * GEMINI-2: Motion Preferences
+ * ============================================================================ */
+
+/* Reduce motion - disable animations */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .alive-float,
+    .alive-breathe,
+    .alive-gradient-bg,
+    .alive-stagger>* {
+        animation: none !important;
+    }
+
+    .provider-card:hover {
+        transform: none;
+    }
+
+    .agent-auth-overlay {
+        transform: scale(1) !important;
+    }
+}
+
+/* Prefer reduced transparency */
+@media (prefers-reduced-transparency: reduce) {
+    .agent-auth-backdrop {
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: none;
+    }
+
+    .agent-auth-overlay {
+        background: #1a1a2e;
+        backdrop-filter: none;
+    }
+
+    .provider-card {
+        background: #252540;
+    }
+}
+
+/* ============================================================================
+ * GEMINI-2: Touch Optimizations
+ * ============================================================================ */
+
+@media (pointer: coarse) {
+
+    /* Larger touch targets */
+    .auth-button,
+    .filter-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .agent-auth-close {
+        width: 44px;
+        height: 44px;
+        font-size: 24px;
+    }
+
+    /* No hover effects on touch */
+    .provider-card:hover {
+        transform: none;
+        box-shadow: inherit;
+    }
+}
+
+/* ============================================================================
+ * GEMINI-2: Print Styles
+ * ============================================================================ */
+
+@media print {
+    .agent-auth-backdrop {
+        position: static;
+        background: white;
+    }
+
+    .agent-auth-overlay {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        background: white;
+        color: black;
+    }
+
+    .provider-card {
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+    }
+
+    .auth-button,
+    .agent-auth-close {
+        display: none;
+    }
+}

@@ -1,0 +1,497 @@
+/* ============================================================================
+ * ALIVE ANIMATIONS - RHEOMODE KINESIS UI Enhancement
+ * ============================================================================
+ * Every interaction causes motion. Nothing is static. The UI breathes.
+ * 
+ * Inspired by:
+ * - Fractal Gradient Textures
+ * - Parallax depth effects
+ * - 3D flip cards with layers
+ * - Pop-out avatars with clip-path
+ * - Pseudo 3D portraits
+ * - Avatar indicators with CSS masks
+ * - GSAP-style contact list animations
+ * ============================================================================ */
+
+:root {
+    /* === OPUS-1: Advanced Spring Physics === */
+    --spring-mass: 1;
+    --spring-stiffness: 100;
+    --spring-damping: 10;
+
+    /* Squishy Animation */
+    --squish-scale: 0.95;
+    --squish-duration: 150ms;
+    --squish-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Bouncy Animation - Spring Preset */
+    --bounce-overshoot: 1.08;
+    --bounce-duration: 400ms;
+    --bounce-ease: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    /* Morph Animation */
+    --morph-duration: 500ms;
+    --morph-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Parallax */
+    --parallax-depth-1: 0.1;
+    --parallax-depth-2: 0.2;
+    --parallax-depth-3: 0.3;
+
+    /* Glow Pulse */
+    --glow-frequency: 3s;
+    --glow-intensity: 30px;
+
+    /* === OPUS-1: GSAP-Style Timeline Tokens === */
+    --stagger-base: 60ms;
+    --stagger-cascade: 40ms;
+    --timeline-offset: 0.15;
+
+    /* === OPUS-1: Premium Easing Library === */
+    --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-expo-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+    --ease-back-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-elastic-out: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+    --ease-smooth: cubic-bezier(0.45, 0, 0.55, 1);
+
+    /* === OPUS-1: Response Hierarchy === */
+    --response-instant: 50ms;
+    --response-fast: 100ms;
+    --response-normal: 200ms;
+    --response-slow: 400ms;
+    --response-theatrical: 700ms;
+}
+
+/* ============================================================================
+ * SQUISHY BUTTONS - Press and release like rubber
+ * ============================================================================ */
+
+.alive-btn,
+.auth-button,
+.filter-btn,
+.demo-trigger {
+    transition:
+        transform var(--squish-duration) var(--squish-bounce),
+        box-shadow var(--squish-duration) ease-out,
+        filter var(--squish-duration) ease-out;
+    will-change: transform;
+}
+
+.alive-btn:hover,
+.auth-button:hover,
+.filter-btn:hover,
+.demo-trigger:hover {
+    transform: scale(1.02) translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.alive-btn:active,
+.auth-button:active,
+.filter-btn:active,
+.demo-trigger:active {
+    transform: scale(var(--squish-scale)) translateY(1px);
+    filter: brightness(0.95);
+    transition-duration: 50ms;
+}
+
+/* Magnetic hover - button moves toward cursor */
+.alive-btn-magnetic {
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ============================================================================
+ * MORPHING MODAL - Multi-stage entrance animation
+ * ============================================================================ */
+
+.alive-modal-backdrop {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    transition:
+        opacity var(--morph-duration) ease-out,
+        backdrop-filter var(--morph-duration) ease-out;
+}
+
+.alive-modal-backdrop.visible {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+}
+
+.alive-modal {
+    opacity: 0;
+    transform:
+        scale(0.8) translateY(40px) rotateX(10deg);
+    transform-origin: center bottom;
+    transition:
+        opacity calc(var(--morph-duration) * 0.6) ease-out,
+        transform var(--morph-duration) var(--bounce-ease);
+}
+
+.alive-modal-backdrop.visible .alive-modal {
+    opacity: 1;
+    transform:
+        scale(1) translateY(0) rotateX(0deg);
+}
+
+/* Exit animation - shrink and fade */
+.alive-modal-backdrop.closing .alive-modal {
+    opacity: 0;
+    transform:
+        scale(0.9) translateY(20px);
+    transition-duration: 200ms;
+}
+
+/* ============================================================================
+ * BOUNCY CARDS - Spring physics on hover
+ * ============================================================================ */
+
+.alive-card,
+.provider-card {
+    transition:
+        transform var(--bounce-duration) var(--bounce-ease),
+        box-shadow var(--bounce-duration) ease-out;
+    will-change: transform;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.alive-card:hover,
+.provider-card:hover {
+    transform:
+        translateY(-8px) scale(var(--bounce-overshoot)) rotateX(2deg);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* 3D Tilt on mouse move (JS required) */
+.alive-card-3d {
+    --rotateX: 0deg;
+    --rotateY: 0deg;
+    transform:
+        perspective(1000px) rotateX(var(--rotateX)) rotateY(var(--rotateY));
+    transition: transform 0.1s ease-out;
+}
+
+/* ============================================================================
+ * FLOATING ELEMENTS - Subtle continuous animation
+ * ============================================================================ */
+
+@keyframes alive-float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-4px) rotate(0.5deg);
+    }
+
+    75% {
+        transform: translateY(4px) rotate(-0.5deg);
+    }
+}
+
+.alive-float {
+    animation: alive-float 6s ease-in-out infinite;
+}
+
+.alive-float:nth-child(2) {
+    animation-delay: -1.5s;
+}
+
+.alive-float:nth-child(3) {
+    animation-delay: -3s;
+}
+
+.alive-float:nth-child(4) {
+    animation-delay: -4.5s;
+}
+
+/* ============================================================================
+ * BREATHING GLOW - Organic pulse effect
+ * ============================================================================ */
+
+@keyframes alive-breathe {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 0 0 var(--provider-glow, rgba(139, 92, 246, 0.4)),
+            0 4px 20px rgba(0, 0, 0, 0.2);
+        filter: brightness(1);
+    }
+
+    50% {
+        box-shadow:
+            0 0 var(--glow-intensity) 0 var(--provider-glow, rgba(139, 92, 246, 0.6)),
+            0 8px 30px rgba(0, 0, 0, 0.3);
+        filter: brightness(1.05);
+    }
+}
+
+.alive-breathe {
+    animation: alive-breathe var(--glow-frequency) ease-in-out infinite;
+}
+
+.provider-card.connected {
+    animation: alive-breathe 4s ease-in-out infinite;
+}
+
+/* ============================================================================
+ * PARALLAX LAYERS - Depth on mouse move
+ * ============================================================================ */
+
+.alive-parallax-container {
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.alive-parallax-layer {
+    --depth: var(--parallax-depth-1);
+    transform:
+        translateX(calc(var(--mouse-x, 0) * var(--depth) * 1px)) translateY(calc(var(--mouse-y, 0) * var(--depth) * 1px));
+    transition: transform 0.15s ease-out;
+}
+
+.alive-parallax-layer-1 {
+    --depth: var(--parallax-depth-1);
+}
+
+.alive-parallax-layer-2 {
+    --depth: var(--parallax-depth-2);
+}
+
+.alive-parallax-layer-3 {
+    --depth: var(--parallax-depth-3);
+}
+
+/* ============================================================================
+ * RIPPLE EFFECT - Material-style interaction feedback
+ * ============================================================================ */
+
+.alive-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.alive-ripple::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle,
+            rgba(255, 255, 255, 0.4) 0%,
+            transparent 60%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: width 0.5s ease-out, height 0.5s ease-out, opacity 0.3s;
+}
+
+.alive-ripple:active::after {
+    width: 300%;
+    height: 300%;
+    opacity: 1;
+    transition: 0s;
+}
+
+/* ============================================================================
+ * STAGGER ENTRANCE - Sequential reveal
+ * ============================================================================ */
+
+@keyframes alive-stagger-in {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+        filter: blur(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.alive-stagger>* {
+    animation: alive-stagger-in var(--bounce-duration) var(--bounce-ease) backwards;
+}
+
+.alive-stagger>*:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.alive-stagger>*:nth-child(2) {
+    animation-delay: 80ms;
+}
+
+.alive-stagger>*:nth-child(3) {
+    animation-delay: 160ms;
+}
+
+.alive-stagger>*:nth-child(4) {
+    animation-delay: 240ms;
+}
+
+.alive-stagger>*:nth-child(5) {
+    animation-delay: 320ms;
+}
+
+.alive-stagger>*:nth-child(6) {
+    animation-delay: 400ms;
+}
+
+/* ============================================================================
+ * FRACTAL GRADIENT BACKGROUND - Living texture
+ * ============================================================================ */
+
+@keyframes alive-gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.alive-gradient-bg {
+    background: linear-gradient(-45deg,
+            #0a0a0f,
+            #1a1a2e,
+            #16213e,
+            #0f3460,
+            #1a1a2e);
+    background-size: 400% 400%;
+    animation: alive-gradient-shift 15s ease infinite;
+}
+
+/* ============================================================================
+ * AVATAR INDICATOR - Status ring with mask
+ * ============================================================================ */
+
+.alive-avatar {
+    position: relative;
+    border-radius: 50%;
+    overflow: visible;
+}
+
+.alive-avatar::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+            var(--provider-color, #8B5CF6),
+            transparent 30%,
+            var(--provider-color, #8B5CF6) 60%,
+            transparent 90%,
+            var(--provider-color, #8B5CF6));
+    animation: alive-avatar-spin 3s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.alive-avatar.connected::before {
+    opacity: 1;
+}
+
+@keyframes alive-avatar-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================================
+ * FLIP CARD 3D - Multi-layer reveal
+ * ============================================================================ */
+
+.alive-flip-card {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.alive-flip-card-inner {
+    transition: transform 0.6s var(--bounce-ease);
+    transform-style: preserve-3d;
+}
+
+.alive-flip-card:hover .alive-flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.alive-flip-card-front,
+.alive-flip-card-back {
+    backface-visibility: hidden;
+    position: absolute;
+    inset: 0;
+}
+
+.alive-flip-card-back {
+    transform: rotateY(180deg);
+}
+
+/* ============================================================================
+ * POP-OUT AVATAR - Clip-path hover effect
+ * ============================================================================ */
+
+.alive-pop-avatar {
+    clip-path: circle(50% at 50% 50%);
+    transition:
+        clip-path 0.4s var(--bounce-ease),
+        transform 0.4s var(--bounce-ease),
+        filter 0.4s;
+}
+
+.alive-pop-avatar:hover {
+    clip-path: circle(70% at 50% 50%);
+    transform: scale(1.1);
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+/* ============================================================================
+ * MOUSE TRAIL GLOW - Cursor interaction
+ * ============================================================================ */
+
+.alive-cursor-glow {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle,
+            rgba(139, 92, 246, 0.15) 0%,
+            transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    mix-blend-mode: screen;
+}
+
+/* ============================================================================
+ * REDUCED MOTION - Accessibility first
+ * ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .alive-float,
+    .alive-breathe,
+    .alive-gradient-bg {
+        animation: none;
+    }
+}

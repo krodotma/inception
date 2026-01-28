@@ -341,12 +341,18 @@ class InceptionDB:
         with self.read_txn() as t:
             return _get(t)
     
-    def iter_nodes(self, txn: lmdb.Transaction | None = None) -> Iterator[NodeRecord]:
+    def iter_nodes(self, reverse: bool = False, txn: lmdb.Transaction | None = None) -> Iterator[NodeRecord]:
         """Iterate over all node records."""
         def _iter(t: lmdb.Transaction) -> Iterator[NodeRecord]:
             cursor = t.cursor(self._dbs[DB_NODE])
-            for _, value in cursor:
-                yield NodeRecord.unpack(value)
+            if reverse:
+                if cursor.last():
+                    yield NodeRecord.unpack(cursor.value())
+                    while cursor.prev():
+                        yield NodeRecord.unpack(cursor.value())
+            else:
+                for _, value in cursor:
+                    yield NodeRecord.unpack(value)
         
         if txn:
             yield from _iter(txn)

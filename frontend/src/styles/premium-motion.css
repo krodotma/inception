@@ -1,0 +1,356 @@
+/* ============================================================================
+ * GEMINI-2 ULTRATHINK: Premium Motion Patterns
+ * ============================================================================
+ * Fibonacci stagger, View Transitions, reduced-motion alternatives
+ * ============================================================================ */
+
+/* === FIBONACCI STAGGER SEQUENCE === */
+/* More natural feeling than linear stagger */
+/* 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55... scaled to ms */
+
+.fibonacci-stagger>*:nth-child(1) {
+    --stagger-delay: 0ms;
+}
+
+.fibonacci-stagger>*:nth-child(2) {
+    --stagger-delay: 34ms;
+}
+
+.fibonacci-stagger>*:nth-child(3) {
+    --stagger-delay: 55ms;
+}
+
+.fibonacci-stagger>*:nth-child(4) {
+    --stagger-delay: 89ms;
+}
+
+.fibonacci-stagger>*:nth-child(5) {
+    --stagger-delay: 144ms;
+}
+
+.fibonacci-stagger>*:nth-child(6) {
+    --stagger-delay: 233ms;
+}
+
+.fibonacci-stagger>*:nth-child(7) {
+    --stagger-delay: 377ms;
+}
+
+.fibonacci-stagger>*:nth-child(8) {
+    --stagger-delay: 610ms;
+}
+
+.fibonacci-stagger>* {
+    animation: fibonacci-entrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: var(--stagger-delay);
+}
+
+@keyframes fibonacci-entrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        filter: blur(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* === GOLDEN RATIO EASING === */
+/* Based on φ = 1.618... */
+:root {
+    --ease-golden: cubic-bezier(0.618, 0, 0.382, 1);
+    --ease-golden-out: cubic-bezier(0, 0.618, 0.382, 1);
+    --ease-golden-in: cubic-bezier(0.618, 0, 1, 0.382);
+}
+
+/* === VIEW TRANSITIONS API === */
+/* For browsers that support it */
+@supports (view-transition-name: none) {
+    .agent-auth-overlay {
+        view-transition-name: auth-modal;
+    }
+
+    .provider-card {
+        view-transition-name: provider-card;
+    }
+
+    ::view-transition-old(auth-modal),
+    ::view-transition-new(auth-modal) {
+        animation-duration: 0.4s;
+        animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    ::view-transition-old(auth-modal) {
+        animation-name: modal-exit;
+    }
+
+    ::view-transition-new(auth-modal) {
+        animation-name: modal-enter;
+    }
+}
+
+@keyframes modal-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modal-exit {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+}
+
+/* === MORPHING BORDER ANIMATION === */
+/* Smooth color transitions on connection */
+.provider-card {
+    --border-morph-duration: 0.6s;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+}
+
+.provider-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg,
+            var(--provider-color, rgba(255, 255, 255, 0.1)),
+            transparent 60%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity var(--border-morph-duration) var(--ease-golden);
+}
+
+.provider-card:hover::before,
+.provider-card.connected::before {
+    opacity: 1;
+}
+
+/* === BREATHING FOCUS RING === */
+@keyframes focus-breathe {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.2);
+    }
+}
+
+.auth-button:focus-visible,
+.filter-btn:focus-visible,
+.provider-card:focus-visible {
+    animation: focus-breathe 2s ease-in-out infinite;
+    outline: none;
+}
+
+/* === LIQUID BUTTON EFFECT === */
+.liquid-btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s var(--ease-golden);
+}
+
+.liquid-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+    border-radius: 50%;
+}
+
+.liquid-btn:hover::before {
+    width: 300%;
+    height: 300%;
+}
+
+/* === GLOW PULSE SYSTEM === */
+/* Coordinated pulse across connected elements */
+:root {
+    --pulse-phase: 0;
+}
+
+@property --pulse-phase {
+    syntax: '<number>';
+    initial-value: 0;
+    inherits: true;
+}
+
+@keyframes global-pulse {
+    to {
+        --pulse-phase: 1;
+    }
+}
+
+.pulse-sync {
+    animation: global-pulse 3s linear infinite;
+}
+
+.connection-badge.connected {
+    box-shadow: 0 0 calc(5px + var(--pulse-phase) * 10px) rgba(34, 197, 94, calc(0.3 + var(--pulse-phase) * 0.3));
+}
+
+/* === CARD FLIP REVEAL === */
+.card-flip {
+    perspective: 1000px;
+}
+
+.card-flip-inner {
+    transition: transform 0.6s var(--ease-golden);
+    transform-style: preserve-3d;
+}
+
+.card-flip:hover .card-flip-inner {
+    transform: rotateY(10deg) rotateX(-5deg);
+}
+
+/* === ELASTIC SCROLL CONTAINER === */
+.elastic-scroll {
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+}
+
+@supports (scroll-snap-type: y mandatory) {
+    .elastic-scroll {
+        scroll-snap-type: y proximity;
+    }
+
+    .elastic-scroll>* {
+        scroll-snap-align: start;
+    }
+}
+
+/* === SHIMMER LOADING STATE === */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* === TYPEWRITER TEXT REVEAL === */
+@keyframes typewriter {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink-caret {
+    50% {
+        border-color: transparent;
+    }
+}
+
+.typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid;
+    animation:
+        typewriter 2s steps(30) 1s forwards,
+        blink-caret 0.75s step-end infinite;
+}
+
+/* === REDUCED MOTION - ALIVE ALTERNATIVES === */
+/* Even with reduced motion, UI should feel responsive */
+@media (prefers-reduced-motion: reduce) {
+
+    /* Replace animations with instant state changes */
+    .fibonacci-stagger>* {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    /* Use opacity instead of transforms */
+    .provider-card:hover {
+        transform: none;
+        filter: brightness(1.1);
+    }
+
+    /* Subtle color shifts instead of motion */
+    .auth-button:hover {
+        transform: none;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Focus visible without animation */
+    .auth-button:focus-visible,
+    .filter-btn:focus-visible {
+        animation: none;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.5);
+    }
+
+    /* Instant transitions */
+    .agent-auth-backdrop,
+    .agent-auth-overlay {
+        transition-duration: 0.01ms !important;
+    }
+
+    /* Keep essential state indicators */
+    .connection-badge.connected {
+        animation: none;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+}
+
+/* === PERFORMANCE OPTIMIZATIONS === */
+.provider-card,
+.auth-button,
+.agent-auth-overlay {
+    will-change: transform, opacity;
+    contain: layout style paint;
+}
+
+/* GPU acceleration for animated elements */
+.animated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Reduce paint on inactive elements */
+.provider-card:not(:hover) {
+    will-change: auto;
+}

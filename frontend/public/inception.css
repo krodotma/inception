@@ -1520,3 +1520,604 @@ body {
 .toast-icon {
     color: var(--learning-rlvr);
 }
+
+/* =============================================================================
+   27. ENHANCED INGEST MODAL - KINESIS LOG TERMINAL
+   Purpose: Cinematic knowledge transformation experience
+   ============================================================================= */
+
+/* Extra-large modal for rich content */
+.modal-content.modal-xl {
+    max-width: 800px;
+    max-height: 90vh;
+}
+
+.ingest-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 400px;
+}
+
+/* Semantic log colors */
+:root {
+    --log-download: #89b4fa;
+    --log-transcribe: #cba6f7;
+    --log-extract: #a6e3a1;
+    --log-store: #f9e2af;
+    --log-info: #94e2d5;
+    --log-success: #a6e3a1;
+    --log-warning: #fab387;
+    --log-error: #f38ba8;
+}
+
+/* Source Type Badges (enhanced) */
+.source-type-badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.source-badge {
+    padding: 6px 12px;
+    border-radius: var(--md-sys-shape-corner-full);
+    font-size: var(--md-sys-typescale-label-small);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.6;
+    transition: opacity var(--md-sys-motion-duration-short4),
+        transform var(--md-sys-motion-duration-short4);
+    cursor: pointer;
+}
+
+.source-badge:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.source-badge.youtube {
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    color: white;
+}
+
+.source-badge.pdf {
+    background: linear-gradient(135deg, #e54d2e 0%, #c13515 100%);
+    color: white;
+}
+
+.source-badge.web {
+    background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, #6d9bdc 100%);
+    color: var(--md-sys-color-on-primary);
+}
+
+.source-badge.active {
+    opacity: 1;
+    box-shadow: 0 0 12px currentColor;
+}
+
+/* =============================================================================
+   27.1 LOG TERMINAL - The Heart of Transformation
+   ============================================================================= */
+.log-terminal {
+    background: #0d0d14;
+    border-radius: var(--md-sys-shape-corner-large);
+    border: 1px solid var(--md-sys-color-outline-variant);
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    max-height: 300px;
+}
+
+.log-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #13131d;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    font-size: var(--md-sys-typescale-label-medium);
+    font-weight: 500;
+}
+
+.log-status {
+    margin-left: auto;
+    font-size: var(--md-sys-typescale-label-small);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.log-status.running {
+    color: var(--log-extract);
+    animation: kinesis-pulse 1s infinite;
+}
+
+.log-status.complete {
+    color: var(--log-success);
+}
+
+.log-status.error {
+    color: var(--log-error);
+}
+
+.log-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* Individual log entries */
+.log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: log-entry-appear 0.3s var(--md-sys-motion-easing-emphasized-decelerate) forwards;
+}
+
+@keyframes log-entry-appear {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.log-entry .timestamp {
+    color: var(--md-sys-color-outline);
+    font-size: 10px;
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+.log-entry .phase-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 70px;
+    text-align: center;
+}
+
+.log-entry .message {
+    flex: 1;
+    color: var(--md-sys-color-on-surface);
+    word-break: break-word;
+}
+
+/* Phase-specific colors */
+.log-entry[data-phase="download"] .phase-tag {
+    background: rgba(137, 180, 250, 0.2);
+    color: var(--log-download);
+}
+
+.log-entry[data-phase="download"] .message {
+    color: var(--log-download);
+}
+
+.log-entry[data-phase="transcribe"] .phase-tag {
+    background: rgba(203, 166, 247, 0.2);
+    color: var(--log-transcribe);
+}
+
+.log-entry[data-phase="transcribe"] .message {
+    color: var(--log-transcribe);
+}
+
+.log-entry[data-phase="extract"] .phase-tag {
+    background: rgba(166, 227, 161, 0.2);
+    color: var(--log-extract);
+}
+
+.log-entry[data-phase="extract"] .message {
+    color: var(--log-extract);
+}
+
+.log-entry[data-phase="store"] .phase-tag {
+    background: rgba(249, 226, 175, 0.2);
+    color: var(--log-store);
+}
+
+.log-entry[data-phase="store"] .message {
+    color: var(--log-store);
+}
+
+.log-entry[data-phase="info"] .phase-tag {
+    background: rgba(148, 226, 213, 0.2);
+    color: var(--log-info);
+}
+
+.log-entry[data-phase="success"] .phase-tag {
+    background: rgba(166, 227, 161, 0.3);
+    color: var(--log-success);
+}
+
+.log-entry[data-phase="error"] .phase-tag {
+    background: rgba(243, 139, 168, 0.2);
+    color: var(--log-error);
+}
+
+.log-entry[data-phase="error"] .message {
+    color: var(--log-error);
+}
+
+/* Active entry - glowing rainbow shimmer */
+.log-entry.active {
+    background: linear-gradient(90deg,
+            rgba(137, 180, 250, 0.1) 0%,
+            rgba(166, 227, 161, 0.15) 50%,
+            rgba(249, 226, 175, 0.1) 100%);
+    background-size: 200% 100%;
+    animation: log-entry-appear 0.3s forwards, active-shimmer 2s infinite linear;
+    border-left: 2px solid var(--md-sys-color-primary);
+}
+
+@keyframes active-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Cascading opacity for older entries */
+.log-content .log-entry:nth-last-child(1) {
+    opacity: 1;
+}
+
+.log-content .log-entry:nth-last-child(2) {
+    opacity: 0.95;
+}
+
+.log-content .log-entry:nth-last-child(3) {
+    opacity: 0.9;
+}
+
+.log-content .log-entry:nth-last-child(4) {
+    opacity: 0.85;
+}
+
+.log-content .log-entry:nth-last-child(5) {
+    opacity: 0.8;
+}
+
+.log-content .log-entry:nth-last-child(6) {
+    opacity: 0.75;
+}
+
+.log-content .log-entry:nth-last-child(7) {
+    opacity: 0.7;
+}
+
+.log-content .log-entry:nth-last-child(8) {
+    opacity: 0.65;
+}
+
+.log-content .log-entry:nth-last-child(n+9) {
+    opacity: 0.5;
+}
+
+/* Typewriter cursor for active message */
+.log-entry.active .message::after {
+    content: '▋';
+    animation: cursor-blink 0.7s infinite;
+    color: var(--md-sys-color-primary);
+    margin-left: 2px;
+}
+
+@keyframes cursor-blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* =============================================================================
+   27.2 EXTRACTION RESULTS - Knowledge Birth Celebration
+   ============================================================================= */
+.extraction-results {
+    background: var(--md-sys-color-surface-container);
+    border-radius: var(--md-sys-shape-corner-large);
+    padding: 20px;
+    animation: results-reveal 0.5s var(--md-sys-motion-easing-emphasized-decelerate) forwards;
+}
+
+@keyframes results-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.result-card {
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: var(--md-sys-shape-corner-medium);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: card-pop 0.4s var(--md-sys-motion-easing-emphasized) forwards;
+    animation-delay: calc(var(--card-index, 0) * 100ms);
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.result-card:nth-child(1) {
+    --card-index: 0;
+}
+
+.result-card:nth-child(2) {
+    --card-index: 1;
+}
+
+.result-card:nth-child(3) {
+    --card-index: 2;
+}
+
+@keyframes card-pop {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Celebration glow behind cards */
+.result-card::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: radial-gradient(circle, var(--card-glow-color, var(--md-sys-color-primary)) 0%, transparent 70%);
+    opacity: 0.1;
+    animation: glow-pulse 2s infinite;
+}
+
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.2;
+        transform: scale(1.1);
+    }
+}
+
+.result-card.entities-card {
+    --card-glow-color: var(--md-sys-color-primary);
+}
+
+.result-card.claims-card {
+    --card-glow-color: var(--md-sys-color-secondary);
+}
+
+.result-card.gaps-card {
+    --card-glow-color: var(--md-sys-color-tertiary);
+}
+
+.result-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.entities-card .result-icon {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+}
+
+.claims-card .result-icon {
+    background: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+}
+
+.gaps-card .result-icon {
+    background: var(--md-sys-color-tertiary-container);
+    color: var(--md-sys-color-on-tertiary-container);
+}
+
+.result-content {
+    position: relative;
+    z-index: 1;
+}
+
+.result-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--md-sys-color-on-surface) 0%, var(--md-sys-color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.result-label {
+    font-size: var(--md-sys-typescale-label-medium);
+    color: var(--md-sys-color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.result-list {
+    margin-top: 12px;
+    font-size: var(--md-sys-typescale-body-small);
+    color: var(--md-sys-color-on-surface-variant);
+    max-height: 60px;
+    overflow-y: auto;
+    text-align: left;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.result-list-item {
+    padding: 4px 0;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.result-list-item:last-child {
+    border-bottom: none;
+}
+
+/* =============================================================================
+   27.3 SOURCE INFO CARD
+   ============================================================================= */
+.source-info-card {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: var(--md-sys-color-surface-container-low);
+    border-radius: var(--md-sys-shape-corner-medium);
+    border-left: 4px solid var(--md-sys-color-primary);
+}
+
+.source-thumbnail {
+    width: 120px;
+    height: 68px;
+    background: var(--md-sys-color-surface-container);
+    border-radius: var(--md-sys-shape-corner-small);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.source-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.source-thumbnail .material-symbols-rounded {
+    font-size: 32px;
+    color: var(--md-sys-color-outline);
+}
+
+.source-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.source-title-text {
+    font-size: var(--md-sys-typescale-title-medium);
+    font-weight: 500;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.source-meta {
+    font-size: var(--md-sys-typescale-body-small);
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* =============================================================================
+   27.4 ENHANCED ACTION BUTTON STATES
+   ============================================================================= */
+.action-btn.success {
+    background: var(--md-sys-color-secondary);
+    color: var(--md-sys-color-on-secondary);
+}
+
+.action-btn.success:hover {
+    background: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Celebration particles effect */
+@keyframes particle-burst {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
+}
+
+.celebration-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particle-burst 0.8s ease-out forwards;
+}
+
+/* =============================================================================
+   27.5 GRAPH NODE HIGHLIGHT FOR NEW ENTITIES
+   ============================================================================= */
+.new-entity-highlight {
+    animation: new-entity-glow 2s ease-in-out 3;
+}
+
+@keyframes new-entity-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 rgba(166, 227, 161, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(166, 227, 161, 0.6);
+    }
+}

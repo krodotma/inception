@@ -1,0 +1,492 @@
+/* ============================================================================
+ * GEMINI-2 ITERATION 2: Skeleton Loaders & Haptic CSS
+ * ============================================================================
+ * Premium loading states and tactile feedback
+ * ============================================================================ */
+
+/* === SKELETON LOADER SYSTEM === */
+/* Elegant loading placeholders with shimmer */
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 20%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0.1) 80%,
+            transparent 100%);
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Skeleton variants */
+.skeleton-text {
+    height: 1em;
+    margin-bottom: 0.5em;
+    border-radius: 4px;
+}
+
+.skeleton-text:last-child {
+    width: 60%;
+}
+
+.skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.skeleton-card {
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.skeleton-button {
+    height: 44px;
+    border-radius: 12px;
+}
+
+/* Provider card skeleton */
+.skeleton-provider-card {
+    display: grid;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-provider-card .skeleton-avatar {
+    width: 56px;
+    height: 56px;
+}
+
+.skeleton-provider-card .skeleton-title {
+    width: 70%;
+    height: 20px;
+}
+
+.skeleton-provider-card .skeleton-subtitle {
+    width: 50%;
+    height: 14px;
+}
+
+/* === HAPTIC FEEDBACK CSS === */
+/* Tactile micro-interactions */
+
+/* Press feedback - deeper press */
+.haptic-press {
+    transition: transform 0.08s ease-out;
+}
+
+.haptic-press:active {
+    transform: scale(0.96) translateY(2px);
+}
+
+/* Click pop - satisfying release */
+.haptic-pop {
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.haptic-pop:active {
+    transform: scale(0.92);
+}
+
+/* Subtle shake for errors */
+@keyframes haptic-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-4px);
+    }
+
+    40% {
+        transform: translateX(4px);
+    }
+
+    60% {
+        transform: translateX(-3px);
+    }
+
+    80% {
+        transform: translateX(3px);
+    }
+}
+
+.haptic-shake {
+    animation: haptic-shake 0.4s ease-out;
+}
+
+/* Success bounce */
+@keyframes haptic-bounce {
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(1.1);
+    }
+
+    50% {
+        transform: scale(0.95);
+    }
+
+    70% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.haptic-bounce {
+    animation: haptic-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Pulse attention */
+@keyframes haptic-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+    }
+
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+    }
+}
+
+.haptic-pulse {
+    animation: haptic-pulse 1.5s ease-in-out infinite;
+}
+
+/* === ADVANCED LOADING STATES === */
+
+/* Orbiting dots loader */
+.loader-orbit {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.loader-orbit::before,
+.loader-orbit::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--provider-color, #8B5CF6);
+}
+
+.loader-orbit::before {
+    animation: orbit 1s linear infinite;
+}
+
+.loader-orbit::after {
+    animation: orbit 1s linear infinite reverse;
+    animation-delay: 0.5s;
+}
+
+@keyframes orbit {
+    from {
+        transform: rotate(0deg) translateX(16px);
+    }
+
+    to {
+        transform: rotate(360deg) translateX(16px);
+    }
+}
+
+/* DNA helix loader */
+.loader-dna {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    height: 32px;
+}
+
+.loader-dna span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--provider-color, #8B5CF6);
+    animation: dna-wave 1.2s ease-in-out infinite;
+}
+
+.loader-dna span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.loader-dna span:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.loader-dna span:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.loader-dna span:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+.loader-dna span:nth-child(5) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dna-wave {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateY(-12px) scale(0.8);
+        opacity: 0.5;
+    }
+}
+
+/* Connection establishing loader */
+.loader-connect {
+    position: relative;
+    width: 60px;
+    height: 20px;
+}
+
+.loader-connect::before,
+.loader-connect::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--provider-color, #8B5CF6);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.loader-connect::before {
+    left: 0;
+}
+
+.loader-connect::after {
+    right: 0;
+}
+
+.loader-connect span {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    top: 50%;
+    height: 2px;
+    background: linear-gradient(90deg,
+            var(--provider-color, #8B5CF6),
+            transparent);
+    transform: translateY(-50%);
+    animation: connect-pulse 1s ease-in-out infinite;
+}
+
+@keyframes connect-pulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: translateY(-50%) scaleX(0.5);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(-50%) scaleX(1);
+    }
+}
+
+/* === GLASS MORPHISM ENHANCEMENTS === */
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-card-elevated {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Frosted glass with color tint */
+.glass-tinted {
+    --glass-tint: rgba(139, 92, 246, 0.1);
+    background: linear-gradient(135deg,
+            var(--glass-tint) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
+}
+
+.glass-tinted.claude {
+    --glass-tint: rgba(139, 92, 246, 0.15);
+}
+
+.glass-tinted.gemini {
+    --glass-tint: rgba(66, 133, 244, 0.15);
+}
+
+.glass-tinted.codex {
+    --glass-tint: rgba(16, 185, 129, 0.15);
+}
+
+.glass-tinted.kimi {
+    --glass-tint: rgba(245, 158, 11, 0.15);
+}
+
+/* === STATE TRANSITION ANIMATIONS === */
+
+/* Card flip for status change */
+.flip-container {
+    perspective: 1000px;
+}
+
+.flip-card {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+    backface-visibility: hidden;
+    position: absolute;
+    inset: 0;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+}
+
+/* Reveal animation for connected state */
+@keyframes status-reveal {
+    0% {
+        clip-path: circle(0% at 50% 50%);
+        opacity: 0;
+    }
+
+    100% {
+        clip-path: circle(100% at 50% 50%);
+        opacity: 1;
+    }
+}
+
+.status-reveal {
+    animation: status-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Connected checkmark draw */
+@keyframes draw-check {
+    0% {
+        stroke-dashoffset: 24;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.check-icon path {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: draw-check 0.4s ease-out 0.2s forwards;
+}
+
+/* === GESTURE HINTS === */
+
+/* Swipe hint */
+.swipe-hint {
+    position: relative;
+}
+
+.swipe-hint::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    transform: translateX(-50%);
+    animation: swipe-hint 2s ease-in-out infinite;
+}
+
+@keyframes swipe-hint {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateX(0);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translateX(-50%) translateX(-20px);
+        opacity: 0.8;
+    }
+}
+
+/* Drag handle */
+.drag-handle {
+    cursor: grab;
+    touch-action: none;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.drag-handle::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    margin: 8px auto;
+}

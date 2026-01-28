@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Auth - Connect AI Providers</title>
+    <link rel="stylesheet" href="src/styles/tokens.css">
+    <link rel="stylesheet" href="src/styles/agent-auth.css">
+    <link rel="stylesheet" href="src/styles/alive-animations.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+
+        .demo-trigger {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #8B5CF6, #4285F4);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 24px rgba(139, 92, 246, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .demo-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.6);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Demo trigger button -->
+    <button class="demo-trigger" onclick="toggleOverlay()">
+        ⚡ Connect AI Providers
+    </button>
+
+    <!-- Agent Auth Overlay -->
+    <div class="agent-auth-backdrop" id="authOverlay">
+        <div class="agent-auth-overlay">
+            <!-- Header -->
+            <div class="agent-auth-header">
+                <h2 class="agent-auth-title">Connect AI Providers</h2>
+                <button class="agent-auth-close" onclick="toggleOverlay()">×</button>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="agent-auth-filters" style="margin-bottom: 16px; display: flex; gap: 8px;">
+                <button data-filter="all" class="filter-btn active"
+                    style="padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; font-size: 0.75rem; transition: all 0.2s;">All</button>
+                <button data-filter="connected" class="filter-btn"
+                    style="padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.75rem; transition: all 0.2s;">Connected</button>
+                <button data-filter="pending" class="filter-btn"
+                    style="padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.75rem; transition: all 0.2s;">Pending</button>
+            </div>
+
+            <!-- Provider Grid -->
+            <div class="agent-auth-providers" data-isotope-agent-auth>
+                <!-- Claude Card -->
+                <div class="provider-card connected" data-provider="claude">
+                    <div class="connection-badge connected">
+                        <span>Connected</span>
+                    </div>
+                    <div class="provider-logo">🟣</div>
+                    <div class="provider-info">
+                        <h3 class="provider-name">Claude</h3>
+                        <span class="provider-tier">Max Subscription</span>
+                    </div>
+                    <button class="auth-button connected" disabled>
+                        ✓ Opus 4.5 Active
+                    </button>
+                </div>
+
+                <!-- Gemini Card -->
+                <div class="provider-card connected" data-provider="gemini">
+                    <div class="connection-badge connected">
+                        <span>Connected</span>
+                    </div>
+                    <div class="provider-logo">🔵</div>
+                    <div class="provider-info">
+                        <h3 class="provider-name">Gemini</h3>
+                        <span class="provider-tier">Pro Subscription</span>
+                    </div>
+                    <button class="auth-button connected" disabled>
+                        ✓ 2.5 Flash Active
+                    </button>
+                </div>
+
+                <!-- Codex Card -->
+                <div class="provider-card connected" data-provider="codex">
+                    <div class="connection-badge connected">
+                        <span>Connected</span>
+                    </div>
+                    <div class="provider-logo">🟢</div>
+                    <div class="provider-info">
+                        <h3 class="provider-name">Codex</h3>
+                        <span class="provider-tier">Pro Subscription</span>
+                    </div>
+                    <button class="auth-button connected" disabled>
+                        ✓ gpt-5.2-codex Active
+                    </button>
+                </div>
+
+                <!-- Kimi Card (API Key) -->
+                <div class="provider-card" data-provider="kimi">
+                    <div class="connection-badge disconnected">
+                        <span>Not Set</span>
+                    </div>
+                    <div class="provider-logo">🟠</div>
+                    <div class="provider-info">
+                        <h3 class="provider-name">Kimi</h3>
+                        <span class="provider-tier">API Key (Whitelisted)</span>
+                    </div>
+                    <button class="auth-button" onclick="configureKimi()">
+                        Configure API Key
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="agent-auth-footer">
+                <span class="auth-status-summary">
+                    <strong>3</strong> of 4 providers connected
+                </span>
+                <a href="#" class="auth-help-link">Need help connecting?</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kimi API Key Modal -->
+    <div class="agent-auth-backdrop alive-modal-backdrop" id="kimiModal">
+        <div class="agent-auth-overlay alive-modal" style="max-width: 420px;">
+            <div class="agent-auth-header">
+                <h2 class="agent-auth-title">🟠 Configure Kimi API</h2>
+                <button class="agent-auth-close" onclick="closeKimiModal()">×</button>
+            </div>
+            <div style="padding: 20px 0;">
+                <p style="color: rgba(255,255,255,0.7); margin-bottom: 16px; font-size: 0.9rem;">
+                    Kimi uses API key authentication. Enter your Moonshot API key below.
+                </p>
+                <label style="display: block; color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-bottom: 6px;">API
+                    Key</label>
+                <input type="password" id="kimiApiKey" placeholder="sk-..."
+                    style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.9rem; margin-bottom: 12px; transition: all 0.2s;"
+                    onfocus="this.style.borderColor='#F59E0B'; this.style.boxShadow='0 0 0 3px rgba(245,158,11,0.2)';"
+                    onblur="this.style.borderColor='rgba(255,255,255,0.2)'; this.style.boxShadow='none';">
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px;">
+                    <input type="checkbox" id="kimiSaveKey" checked style="accent-color: #F59E0B;">
+                    <label for="kimiSaveKey" style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Save to
+                        environment</label>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="auth-button alive-ripple" onclick="closeKimiModal()"
+                        style="flex: 1; background: rgba(255,255,255,0.1);">
+                        Cancel
+                    </button>
+                    <button class="auth-button alive-ripple" onclick="saveKimiKey()"
+                        style="flex: 2; background: linear-gradient(135deg, #F59E0B, #D97706); border: none;">
+                        ✓ Save & Connect
+                    </button>
+                </div>
+            </div>
+            <div style="padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="https://platform.moonshot.cn/" target="_blank"
+                    style="color: #F59E0B; font-size: 0.8rem; text-decoration: none;">Get API key from Moonshot →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleOverlay() {
+            const overlay = document.getElementById('authOverlay');
+            overlay.classList.toggle('visible');
+        }
+
+        function configureKimi() {
+            const modal = document.getElementById('kimiModal');
+            modal.classList.add('visible');
+            // Try to prepopulate from localStorage or env
+            const saved = localStorage.getItem('KIMI_API_KEY');
+            if (saved) document.getElementById('kimiApiKey').value = saved;
+        }
+
+        function closeKimiModal() {
+            const modal = document.getElementById('kimiModal');
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.classList.remove('visible', 'closing');
+            }, 200);
+        }
+
+        function saveKimiKey() {
+            const key = document.getElementById('kimiApiKey').value.trim();
+            if (!key) {
+                alert('Please enter an API key');
+                return;
+            }
+            // Save to localStorage
+            if (document.getElementById('kimiSaveKey').checked) {
+                localStorage.setItem('KIMI_API_KEY', key);
+            }
+            // Update Kimi card to connected
+            const card = document.querySelector('[data-provider="kimi"]');
+            card.classList.add('connected');
+            card.querySelector('.connection-badge').classList.remove('disconnected');
+            card.querySelector('.connection-badge').classList.add('connected');
+            card.querySelector('.connection-badge span').textContent = 'Connected';
+            card.querySelector('.auth-button').classList.add('connected');
+            card.querySelector('.auth-button').disabled = true;
+            card.querySelector('.auth-button').textContent = '✓ Kimi Active';
+            // Update counter
+            document.querySelector('.auth-status-summary strong').textContent = '4';
+            closeKimiModal();
+        }
+
+        // Auth status check (would call real API)
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+                updateProviderCards(data);
+            } catch (e) {
+                console.log('Demo mode - using static status');
+            }
+        }
+
+        function updateProviderCards(data) {
+            Object.entries(data).forEach(([provider, status]) => {
+                const card = document.querySelector(`[data-provider="${provider}"]`);
+                if (card) {
+                    const badge = card.querySelector('.connection-badge');
+                    const button = card.querySelector('.auth-button');
+
+                    if (status.connected) {
+                        card.classList.add('connected');
+                        badge.classList.remove('disconnected', 'pending');
+                        badge.classList.add('connected');
+                        badge.querySelector('span').textContent = 'Connected';
+                        button.classList.add('connected');
+                        button.disabled = true;
+                        button.textContent = `✓ ${status.model} Active`;
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // Isotope-like Filtering (Vanilla JS)
+        // ==========================================
+        function initFilters() {
+            const filterBtns = document.querySelectorAll('[data-filter]');
+            const grid = document.querySelector('[data-isotope-agent-auth]');
+            const cards = grid.querySelectorAll('.provider-card');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const filter = btn.dataset.filter;
+
+                    // Update active button
+                    filterBtns.forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = 'rgba(255,255,255,0.6)';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = 'rgba(255,255,255,0.1)';
+                    btn.style.color = '#fff';
+
+                    // Filter cards with animation
+                    cards.forEach((card, i) => {
+                        const isConnected = card.classList.contains('connected');
+                        let show = true;
+
+                        if (filter === 'connected') show = isConnected;
+                        if (filter === 'pending') show = !isConnected;
+
+                        // Animate with stagger
+                        setTimeout(() => {
+                            if (show) {
+                                card.style.opacity = '1';
+                                card.style.transform = 'scale(1)';
+                                card.style.display = '';
+                            } else {
+                                card.style.opacity = '0';
+                                card.style.transform = 'scale(0.95)';
+                                setTimeout(() => card.style.display = 'none', 200);
+                            }
+                        }, i * 50);
+                    });
+                });
+            });
+        }
+
+        // Initialize on load
+        initFilters();
+        checkAuthStatus();
+    </script>
+</body>
+
+</html>

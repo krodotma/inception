@@ -353,8 +353,14 @@ def get_provider(
     """
     Get an LLM provider by name with automatic fallback.
     
+    Priority Order (per OAuth-first strategy):
+    1. OAuth providers (ClawdBot/MoltBot) - subscription-based, no API keys
+    2. Ollama (local, free)
+    3. OpenRouter (API key fallback)
+    4. Direct Cloud (API key fallback)
+    
     Args:
-        name: Provider name ("ollama", "openrouter", "cloud", "auto")
+        name: Provider name ("ollama", "openrouter", "cloud", "clawdbot", "moltbot", "auto")
         offline: If True, only use local providers
         model: Optional model override
     
@@ -364,6 +370,23 @@ def get_provider(
     Raises:
         RuntimeError: If no provider is available
     """
+    # Import OAuth providers (lazy to avoid circular imports)
+    try:
+        from inception.auth.oauth_providers import (
+            ClawdBotProvider, MoltBotProvider, get_oauth_provider
+        )
+        oauth_available = True
+    except ImportError:
+        oauth_available = False
+    
+    # Explicit OAuth provider requests
+    if name == "clawdbot" and oauth_available:
+        return get_oauth_provider("clawdbot", model=model)
+    
+    if name == "moltbot" and oauth_available:
+        return get_oauth_provider("moltbot", model=model)
+    
+    # Offline mode - Ollama only
     if name == "ollama" or (name == "auto" and offline):
         provider = OllamaProvider(model=model or "llama3.2")
         if provider.is_available():
@@ -386,28 +409,38 @@ def get_provider(
             return provider
         raise RuntimeError("Cloud API key not configured.")
     
-    # Auto mode: try in order
+    # Auto mode: OAuth-first priority order
     if name == "auto":
-        # Try Ollama first (free, private)
+        # Priority 1: OAuth providers (ClawdBot/MoltBot)
+        if oauth_available:
+            try:
+                return get_oauth_provider("auto", model=model)
+            except RuntimeError:
+                pass  # Fall through to other providers
+        
+        # Priority 2: Ollama (free, local, private)
         ollama = OllamaProvider()
         if ollama.is_available():
             return ollama
         
-        # Try OpenRouter (cost-effective)
+        # Priority 3: OpenRouter (cost-effective fallback)
         openrouter = OpenRouterProvider()
         if openrouter.is_available():
             return openrouter
         
-        # Try direct cloud
+        # Priority 4: Direct cloud APIs
         cloud = CloudProvider()
         if cloud.is_available():
             return cloud
         
         raise RuntimeError(
             "No LLM provider available. Options:\n"
-            "1. Install Ollama: brew install ollama && ollama pull llama3.2\n"
-            "2. Set OPENROUTER_API_KEY environment variable\n"
-            "3. Set ANTHROPIC_API_KEY or OPENAI_API_KEY"
+            "1. Authenticate with ClawdBot: OAuth flow for Claude Max\n"
+            "2. Authenticate with MoltBot: OAuth flow for Gemini Ultra\n"
+            "3. Install Ollama: brew install ollama && ollama pull llama3.2\n"
+            "4. Set OPENROUTER_API_KEY environment variable\n"
+            "5. Set ANTHROPIC_API_KEY or OPENAI_API_KEY"
         )
     
     raise ValueError(f"Unknown provider: {name}")
+
