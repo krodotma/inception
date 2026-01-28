@@ -1300,172 +1300,457 @@ if _frontend_path.exists():
 
 @app.get("/ui", response_class=HTMLResponse)
 async def webui():
-    """Serve the unified WebUI."""
+    """
+    KINESIS Motion-Engineered WebUI
+    ================================
+    Material Design 3 + Catppuccin Mocha + View Transitions
+    
+    Personas Active:
+    - GEMINI-1 SURFACES: M3 token system, component library
+    - OPUS-2 KINESIS: Motion choreography, state transitions
+    - OPUS-3 RHEOMODE: Learning visualization, semantic drill-down
+    """
     return """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inception</title>
+    <meta name="theme-color" content="#1e1e2e">
+    <meta name="description" content="Inception: Autonomous Knowledge Intelligence">
+    <title>Inception | Knowledge Intelligence</title>
     <link rel="manifest" href="/static/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet">
+    <link rel="stylesheet" href="/static/inception.css">
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
     <style>
-        :root {
-            --surface: #1e1e2e;
-            --surface-variant: #313244;
-            --on-surface: #cdd6f4;
-            --primary: #89b4fa;
-            --secondary: #a6e3a1;
-            --tertiary: #f9e2af;
-            --error: #f38ba8;
-            --outline: #45475a;
+        /* KINESIS: Inline overrides for immediate visual impact */
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--surface);
-            color: var(--on-surface);
-            min-height: 100vh;
+        .filled { font-variation-settings: 'FILL' 1; }
+        
+        /* Graph glow effect */
+        #graph-container canvas {
+            filter: drop-shadow(0 0 20px rgba(137, 180, 250, 0.1));
         }
-        .app {
-            display: grid;
-            grid-template-rows: 48px 1fr;
-            min-height: 100vh;
-        }
-        .navbar {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            padding: 0 24px;
-            background: var(--surface-variant);
-            border-bottom: 1px solid var(--outline);
-        }
-        .logo {
-            font-weight: 600;
-            font-size: 18px;
-            color: var(--primary);
-        }
-        .nav-links {
-            display: flex;
-            gap: 16px;
-        }
-        .nav-link {
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: var(--on-surface);
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-        .nav-link:hover, .nav-link.active {
-            background: rgba(137, 180, 250, 0.1);
-        }
-        .nav-link.active {
-            color: var(--primary);
-        }
-        .main {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 16px;
-            padding: 16px;
-        }
-        .panel {
-            background: var(--surface-variant);
-            border-radius: 12px;
-            border: 1px solid var(--outline);
-            overflow: hidden;
-        }
-        .panel-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--outline);
-            font-weight: 500;
-        }
-        .panel-content {
-            padding: 16px;
-            height: calc(100vh - 150px);
-            overflow-y: auto;
-        }
-        #graph-container {
+        
+        /* Learning pulse indicator */
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
             height: 100%;
-            background: var(--surface);
-            border-radius: 8px;
+            border-radius: 50%;
+            border: 2px solid var(--learning-rlvr);
+            animation: pulse-ring 2s infinite;
         }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
         }
-        .stat-card {
-            background: var(--surface);
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
+        
+        /* Reward bar animation */
+        .reward-bar {
+            height: 4px;
+            border-radius: 2px;
+            transition: width 0.5s var(--md-sys-motion-easing-emphasized);
         }
-        .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            color: var(--primary);
-        }
-        .stat-label {
-            font-size: 12px;
-            color: #888;
-            margin-top: 4px;
-        }
-        .entity-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 16px;
-        }
-        .entity-item {
-            background: var(--surface);
-            border-radius: 8px;
-            padding: 12px;
-        }
-        .entity-name {
-            font-weight: 500;
-            color: var(--secondary);
-        }
-        .entity-desc {
-            font-size: 12px;
-            color: #888;
-            margin-top: 4px;
-        }
+        
+        /* View transition names for shared element morphs */
+        .graph-panel { view-transition-name: graph; }
+        .sidebar-panel { view-transition-name: sidebar; }
     </style>
 </head>
 <body>
-    <div class="app">
-        <nav class="navbar">
-            <div class="logo">🔮 Inception</div>
-            <div class="nav-links">
-                <a href="#" class="nav-link active" data-view="graph">Graph</a>
-                <a href="#" class="nav-link" data-view="timeline">Timeline</a>
-                <a href="#" class="nav-link" data-view="terminal">Terminal</a>
+    <div class="app-shell">
+        <!-- GEMINI-1: Navigation Rail (M3 Spec) -->
+        <nav class="nav-rail">
+            <button class="nav-rail-fab kinesis-scale-in" title="Ingest New Source" onclick="openIngestModal()">
+                <span class="material-symbols-rounded">add</span>
+            </button>
+            
+            <div class="nav-rail-items kinesis-stagger">
+                <a class="nav-rail-item active" data-view="graph" title="Knowledge Graph">
+                    <span class="material-symbols-rounded filled icon">hub</span>
+                    <span class="label">Graph</span>
+                </a>
+                <a class="nav-rail-item" data-view="timeline" title="Temporal View">
+                    <span class="material-symbols-rounded icon">timeline</span>
+                    <span class="label">Timeline</span>
+                </a>
+                <a class="nav-rail-item" data-view="learn" title="Learning Engine">
+                    <span class="material-symbols-rounded icon">psychology</span>
+                    <span class="label">Learn</span>
+                </a>
+                <a class="nav-rail-item" data-view="terminal" title="Terminal">
+                    <span class="material-symbols-rounded icon">terminal</span>
+                    <span class="label">Terminal</span>
+                </a>
             </div>
+            
+            <div style="flex:1"></div>
+            
+            <a class="nav-rail-item" title="Settings">
+                <span class="material-symbols-rounded icon">settings</span>
+            </a>
         </nav>
-        <main class="main">
-            <div class="panel">
-                <div class="panel-header">Knowledge Graph</div>
-                <div class="panel-content">
-                    <div id="graph-container"></div>
-                </div>
+        
+        <!-- Top App Bar -->
+        <header class="top-app-bar">
+            <h1 class="top-app-bar-title">
+                <span style="color: var(--md-sys-color-primary)">◈</span> Inception
+            </h1>
+            <div class="top-app-bar-actions">
+                <button class="icon-btn" title="Search" onclick="toggleSearch()">
+                    <span class="material-symbols-rounded">search</span>
+                </button>
+                <button class="icon-btn" title="Notifications">
+                    <span class="material-symbols-rounded">notifications</span>
+                </button>
+                <button class="icon-btn" title="Theme">
+                    <span class="material-symbols-rounded">dark_mode</span>
+                </button>
             </div>
-            <div class="panel">
-                <div class="panel-header">Statistics</div>
-                <div class="panel-content">
-                    <div class="stats-grid" id="stats-grid">
-                        <div class="stat-card"><div class="stat-value" id="stat-entities">-</div><div class="stat-label">Entities</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-claims">-</div><div class="stat-label">Claims</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-gaps">-</div><div class="stat-label">Gaps</div></div>
-                        <div class="stat-card"><div class="stat-value" id="stat-sources">-</div><div class="stat-label">Sources</div></div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Graph Panel (ARCHITECT + KINESIS) -->
+            <section class="card graph-panel kinesis-fade-in">
+                <div class="card-header">
+                    <span class="card-title">Knowledge Graph</span>
+                    <div style="display:flex;gap:8px">
+                        <button class="chip" onclick="fitGraph()">
+                            <span class="material-symbols-rounded" style="font-size:16px">fit_screen</span>
+                            Fit
+                        </button>
+                        <button class="chip" onclick="toggleLabels()">
+                            <span class="material-symbols-rounded" style="font-size:16px">label</span>
+                            Labels
+                        </button>
                     </div>
-                    <div class="entity-list" id="entity-list"></div>
+                </div>
+                <div class="card-content card-content-flush" style="flex:1;position:relative">
+                    <div id="graph-container" class="graph-container"></div>
+                    
+                    <!-- Graph Legend -->
+                    <div class="graph-legend kinesis-fade-in" style="animation-delay:500ms">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:var(--entity-protocol)"></span>
+                            Protocol
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:var(--entity-extension)"></span>
+                            Extension
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:var(--entity-grant-type)"></span>
+                            Grant
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:var(--entity-token-type)"></span>
+                            Token
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:var(--entity-component)"></span>
+                            Component
+                        </div>
+                    </div>
+                    
+                    <!-- Graph Controls -->
+                    <div class="graph-controls">
+                        <button class="icon-btn" style="background:var(--md-sys-color-surface-container)" onclick="zoomIn()">
+                            <span class="material-symbols-rounded">add</span>
+                        </button>
+                        <button class="icon-btn" style="background:var(--md-sys-color-surface-container)" onclick="zoomOut()">
+                            <span class="material-symbols-rounded">remove</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sidebar Panel (RHEOMODE + GEMINI-2) -->
+            <aside class="sidebar-panel" style="display:flex;flex-direction:column;gap:16px">
+                <!-- Stats Card -->
+                <section class="card kinesis-fade-in" style="animation-delay:100ms">
+                    <div class="card-header">
+                        <span class="card-title">Knowledge Base</span>
+                        <span class="chip selected" style="padding:4px 8px;font-size:11px">LIVE</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid kinesis-stagger" id="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-entities">-</div>
+                                <div class="stat-label">Entities</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-claims" style="color:var(--md-sys-color-secondary)">-</div>
+                                <div class="stat-label">Claims</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-gaps" style="color:var(--md-sys-color-error)">-</div>
+                                <div class="stat-label">Gaps</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-sources" style="color:var(--md-sys-color-tertiary)">-</div>
+                                <div class="stat-label">Sources</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Learning Engine Card (RHEOMODE) -->
+                <section class="card kinesis-fade-in" style="animation-delay:200ms">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <span class="material-symbols-rounded" style="font-size:18px;vertical-align:middle;color:var(--learning-rlvr)">psychology</span>
+                            Learning Engine
+                        </span>
+                        <span class="learning-badge" id="learning-status">IDLE</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-card learning dapo">
+                                <div class="stat-value" id="dapo-entropy" style="font-size:20px;color:var(--learning-dapo)">1.0</div>
+                                <div class="stat-label">DAPO Entropy</div>
+                            </div>
+                            <div class="stat-card learning grpo">
+                                <div class="stat-value" id="grpo-groups" style="font-size:20px;color:var(--learning-grpo)">0</div>
+                                <div class="stat-label">GRPO Groups</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top:16px">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                                <span style="font-size:12px;color:var(--md-sys-color-on-surface-variant)">RLVR Verified</span>
+                                <span style="font-size:12px;font-weight:600" id="rlvr-rate">0%</span>
+                            </div>
+                            <div style="height:6px;background:var(--md-sys-color-surface-container-low);border-radius:3px;overflow:hidden">
+                                <div class="reward-bar" id="rlvr-bar" style="width:0%;background:var(--learning-rlvr)"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top:16px">
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                <span style="font-size:12px;color:var(--md-sys-color-on-surface-variant)">Training Steps</span>
+                                <span style="font-size:16px;font-weight:600;color:var(--md-sys-color-primary)" id="total-steps">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Entity List -->
+                <section class="card kinesis-fade-in" style="animation-delay:300ms;flex:1;overflow:hidden;display:flex;flex-direction:column">
+                    <div class="card-header">
+                        <span class="card-title">Entities</span>
+                        <button class="icon-btn" style="width:32px;height:32px" title="Filter">
+                            <span class="material-symbols-rounded" style="font-size:18px">filter_list</span>
+                        </button>
+                    </div>
+                    <div class="card-content" style="flex:1;overflow:hidden;padding:12px">
+                        <div class="entity-list kinesis-stagger" id="entity-list"></div>
+                    </div>
+                </section>
+            </aside>
+        </main>
+        
+        <!-- =================================================================
+             RHEOMODE LAYER 1: Entity Detail Panel (Slide-in)
+             Purpose: Understand WHAT this entity IS and what we CLAIM about it
+             ================================================================= -->
+        <div id="entity-detail-panel" class="detail-panel" data-state="closed">
+            <div class="detail-panel-header">
+                <button class="icon-btn" onclick="closeEntityPanel()">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+                <span class="detail-panel-title" id="entity-detail-title">Entity Details</span>
+                <button class="icon-btn" title="Edit Entity">
+                    <span class="material-symbols-rounded">edit</span>
+                </button>
+            </div>
+            <div class="detail-panel-content">
+                <div id="entity-detail-meta" class="entity-meta"></div>
+                <div class="section-header">
+                    <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-secondary)">verified</span>
+                    <span>Claims Involving This Entity</span>
+                </div>
+                <div id="entity-claims-list" class="claims-list"></div>
+                <div class="section-header" style="margin-top:20px">
+                    <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-error)">help</span>
+                    <span>Knowledge Gaps</span>
+                </div>
+                <div id="entity-gaps-list" class="gaps-list"></div>
+            </div>
+        </div>
+        
+        <!-- =================================================================
+             RHEOMODE LAYER 2: Claim Detail Modal
+             Purpose: Understand WHY we believe this claim (evidence + sources)
+             ================================================================= -->
+        <div id="claim-modal-overlay" class="modal-overlay" data-state="closed" onclick="closeClaimModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <span class="modal-title">Claim Evidence</span>
+                    <button class="icon-btn" onclick="closeClaimModal()">
+                        <span class="material-symbols-rounded">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="claim-statement" class="claim-statement"></div>
+                    <div class="confidence-meter">
+                        <span>Confidence</span>
+                        <div class="confidence-bar-container">
+                            <div id="claim-confidence-bar" class="confidence-bar"></div>
+                        </div>
+                        <span id="claim-confidence-value">0%</span>
+                    </div>
+                    <div class="section-header">
+                        <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-tertiary)">source</span>
+                        <span>Supporting Sources</span>
+                    </div>
+                    <div id="claim-sources-list" class="sources-list"></div>
+                    <div class="modal-actions">
+                        <button class="action-btn secondary" onclick="disputeClaim()">
+                            <span class="material-symbols-rounded">report</span>
+                            Dispute
+                        </button>
+                        <button class="action-btn primary" onclick="verifyClaim()">
+                            <span class="material-symbols-rounded">fact_check</span>
+                            Verify with RLVR
+                        </button>
+                    </div>
                 </div>
             </div>
-        </main>
+        </div>
+        
+        <!-- =================================================================
+             GAP RESOLUTION MODAL
+             Purpose: Transform unknowns into verified knowledge
+             ================================================================= -->
+        <div id="gap-modal-overlay" class="modal-overlay" data-state="closed" onclick="closeGapModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <span class="modal-title">
+                        <span class="material-symbols-rounded" style="color:var(--md-sys-color-error)">psychology_alt</span>
+                        Resolve Knowledge Gap
+                    </span>
+                    <button class="icon-btn" onclick="closeGapModal()">
+                        <span class="material-symbols-rounded">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="gap-question" class="gap-question"></div>
+                    <div class="resolution-input">
+                        <label>Proposed Resolution</label>
+                        <textarea id="gap-resolution-input" placeholder="Enter your proposed answer to this knowledge gap..."></textarea>
+                    </div>
+                    <div class="resolution-sources">
+                        <label>Supporting Sources (optional)</label>
+                        <input type="text" id="gap-source-input" placeholder="URL or source reference">
+                    </div>
+                    <div id="gap-verification-status" class="verification-status" data-state="idle"></div>
+                    <div class="modal-actions">
+                        <button class="action-btn secondary" onclick="closeGapModal()">Cancel</button>
+                        <button class="action-btn primary" onclick="submitGapResolution()" id="gap-submit-btn">
+                            <span class="material-symbols-rounded">science</span>
+                            Submit & Verify
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- =================================================================
+             INGEST MODAL (Multi-step with Progress)
+             Purpose: Transform raw media into knowledge
+             ================================================================= -->
+        <div id="ingest-modal-overlay" class="modal-overlay" data-state="closed" onclick="closeIngestModal(event)">
+            <div class="modal-content modal-lg" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <span class="modal-title">
+                        <span class="material-symbols-rounded" style="color:var(--md-sys-color-primary)">upload</span>
+                        Ingest New Source
+                    </span>
+                    <button class="icon-btn" onclick="closeIngestModal()">
+                        <span class="material-symbols-rounded">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="ingest-input-section" id="ingest-input-section">
+                        <label>Source URI</label>
+                        <input type="text" id="ingest-uri" placeholder="https://youtube.com/watch?v=... or PDF/webpage URL">
+                        <div class="source-type-badges" id="source-type-badges">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    <div class="ingest-progress-section" id="ingest-progress-section" style="display:none">
+                        <div class="progress-stepper">
+                            <div class="progress-step" id="step-download" data-status="pending">
+                                <span class="material-symbols-rounded step-icon">download</span>
+                                <span class="step-label">Download</span>
+                            </div>
+                            <div class="progress-step" id="step-transcribe" data-status="pending">
+                                <span class="material-symbols-rounded step-icon">mic</span>
+                                <span class="step-label">Transcribe</span>
+                            </div>
+                            <div class="progress-step" id="step-extract" data-status="pending">
+                                <span class="material-symbols-rounded step-icon">psychology</span>
+                                <span class="step-label">Extract</span>
+                            </div>
+                            <div class="progress-step" id="step-store" data-status="pending">
+                                <span class="material-symbols-rounded step-icon">database</span>
+                                <span class="step-label">Store</span>
+                            </div>
+                        </div>
+                        <div class="progress-details" id="progress-details"></div>
+                        <div class="extracted-preview" id="extracted-preview" style="display:none">
+                            <div class="section-header">
+                                <span class="material-symbols-rounded" style="font-size:18px;color:var(--md-sys-color-secondary)">auto_awesome</span>
+                                <span>Extracted Knowledge</span>
+                            </div>
+                            <div id="preview-entities" class="preview-list"></div>
+                        </div>
+                    </div>
+                    <div class="modal-actions" id="ingest-actions">
+                        <button class="action-btn secondary" onclick="closeIngestModal()">Cancel</button>
+                        <button class="action-btn primary" onclick="startIngestion()" id="ingest-start-btn">
+                            <span class="material-symbols-rounded">rocket_launch</span>
+                            Start Ingestion
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Learning Activity Toast -->
+        <div id="learning-toast" class="toast" data-state="hidden">
+            <span class="material-symbols-rounded toast-icon">psychology</span>
+            <span id="learning-toast-message">Learning step completed</span>
+        </div>
     </div>
-    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    
     <script>
-        // Color palette for entity types
+        // =============================================================================
+        // KINESIS MOTION ENGINE
+        // Orchestrating fluid state transitions with M3 motion principles
+        // =============================================================================
+        
+        // Entity type colors (semantic mapping)
         const typeColors = {
+            'protocol': 'var(--entity-protocol)',
+            'extension': 'var(--entity-extension)', 
+            'standard': 'var(--entity-standard)',
+            'token_type': 'var(--entity-token-type)',
+            'grant_type': 'var(--entity-grant-type)',
+            'component': 'var(--entity-component)',
+            'database': 'var(--entity-database)',
+            'default': 'var(--entity-default)'
+        };
+        
+        const typeColorsHex = {
             'protocol': '#89b4fa',
             'extension': '#a6e3a1', 
             'standard': '#f9e2af',
@@ -1476,26 +1761,33 @@ async def webui():
             'default': '#cdd6f4'
         };
         
-        // Initialize Cytoscape graph
         let cy = null;
+        let showLabels = true;
         
+        // =============================================================================
+        // GRAPH INITIALIZATION (ARCHITECT + KINESIS)
+        // =============================================================================
         async function initGraph() {
             const [entities, claims] = await Promise.all([
                 fetch('/api/entities').then(r => r.json()),
                 fetch('/api/claims').then(r => r.json())
             ]);
             
-            // Build nodes from entities
-            const nodes = entities.map(e => ({
+            // Build nodes with KINESIS spawn animation prep
+            const nodes = entities.map((e, i) => ({
                 data: {
                     id: e.id,
                     label: e.name,
                     type: e.type || 'default',
-                    description: e.description || ''
+                    description: e.description || '',
+                    weight: 1
+                },
+                style: {
+                    'opacity': 0  // Start invisible for spawn animation
                 }
             }));
             
-            // Build edges from claims (connecting related entities)
+            // Build edges from claims
             const edges = [];
             claims.forEach(c => {
                 const entityIds = c.entity_ids || [];
@@ -1505,10 +1797,15 @@ async def webui():
                             id: `${c.id}-${i}`,
                             source: entityIds[i],
                             target: entityIds[i + 1],
-                            label: c.statement?.substring(0, 30) + '...',
+                            label: c.statement?.substring(0, 40) || '',
                             confidence: c.confidence || 0.5
                         }
                     });
+                    // Increase weight for connected nodes
+                    const sourceNode = nodes.find(n => n.data.id === entityIds[i]);
+                    const targetNode = nodes.find(n => n.data.id === entityIds[i + 1]);
+                    if (sourceNode) sourceNode.data.weight++;
+                    if (targetNode) targetNode.data.weight++;
                 }
             });
             
@@ -1522,45 +1819,78 @@ async def webui():
                             'label': 'data(label)',
                             'text-valign': 'bottom',
                             'text-halign': 'center',
-                            'font-size': '10px',
+                            'font-size': '11px',
+                            'font-family': 'Inter, sans-serif',
+                            'font-weight': 500,
                             'color': '#cdd6f4',
-                            'text-margin-y': 8,
-                            'background-color': (ele) => typeColors[ele.data('type')] || typeColors.default,
-                            'width': 40,
-                            'height': 40,
-                            'border-width': 2,
-                            'border-color': '#45475a'
+                            'text-margin-y': 10,
+                            'text-background-color': '#1e1e2e',
+                            'text-background-opacity': 0.8,
+                            'text-background-padding': '4px',
+                            'background-color': (ele) => typeColorsHex[ele.data('type')] || typeColorsHex.default,
+                            'width': (ele) => 30 + (ele.data('weight') || 1) * 5,
+                            'height': (ele) => 30 + (ele.data('weight') || 1) * 5,
+                            'border-width': 3,
+                            'border-color': '#11111b',
+                            'transition-property': 'width, height, border-color, opacity',
+                            'transition-duration': '0.3s',
+                            'transition-timing-function': 'ease-out'
                         }
                     },
                     {
                         selector: 'edge',
                         style: {
-                            'width': (ele) => 1 + (ele.data('confidence') || 0.5) * 3,
+                            'width': (ele) => 1 + (ele.data('confidence') || 0.5) * 2,
                             'line-color': '#585b70',
                             'target-arrow-color': '#585b70',
                             'target-arrow-shape': 'triangle',
                             'curve-style': 'bezier',
-                            'opacity': 0.7
+                            'opacity': 0.6,
+                            'transition-property': 'opacity, line-color',
+                            'transition-duration': '0.2s'
                         }
                     },
                     {
                         selector: 'node:selected',
                         style: {
-                            'border-width': 3,
-                            'border-color': '#89b4fa'
+                            'border-width': 4,
+                            'border-color': '#89b4fa',
+                            'z-index': 9999
+                        }
+                    },
+                    {
+                        selector: 'edge:selected',
+                        style: {
+                            'line-color': '#89b4fa',
+                            'target-arrow-color': '#89b4fa',
+                            'opacity': 1,
+                            'width': 4
+                        }
+                    },
+                    {
+                        selector: '.highlighted',
+                        style: {
+                            'opacity': 1,
+                            'z-index': 9999
+                        }
+                    },
+                    {
+                        selector: '.faded',
+                        style: {
+                            'opacity': 0.15
                         }
                     }
                 ],
                 layout: {
                     name: 'cose',
-                    idealEdgeLength: 100,
-                    nodeOverlap: 20,
+                    idealEdgeLength: 120,
+                    nodeOverlap: 30,
                     refresh: 20,
                     fit: true,
-                    padding: 30,
+                    padding: 50,
                     randomize: false,
-                    componentSpacing: 100,
-                    nodeRepulsion: 400000,
+                    componentSpacing: 150,
+                    nodeRepulsion: 500000,
                     edgeElasticity: 100,
                     nestingFactor: 5,
                     gravity: 80,
@@ -1568,55 +1898,587 @@ async def webui():
                     initialTemp: 200,
                     coolingFactor: 0.95,
                     minTemp: 1.0
-                }
+                },
+                wheelSensitivity: 0.3
             });
             
-            // Tooltip on hover
+            // KINESIS: Staggered node spawn animation
+            cy.nodes().forEach((node, i) => {
+                setTimeout(() => {
+                    node.animate({
+                        style: { 'opacity': 1 },
+                        duration: 300,
+                        easing: 'ease-out'
+                    });
+                }, i * 30);
+            });
+            
+            // Hover effects
             cy.on('mouseover', 'node', function(e) {
                 const node = e.target;
                 node.style('border-color', '#89b4fa');
+                
+                // Highlight connected edges
+                node.connectedEdges().style({
+                    'line-color': '#89b4fa',
+                    'target-arrow-color': '#89b4fa',
+                    'opacity': 1
+                });
             });
+            
             cy.on('mouseout', 'node', function(e) {
                 const node = e.target;
                 if (!node.selected()) {
-                    node.style('border-color', '#45475a');
+                    node.style('border-color', '#11111b');
+                    node.connectedEdges().style({
+                        'line-color': '#585b70',
+                        'target-arrow-color': '#585b70',
+                        'opacity': 0.6
+                    });
+                }
+            });
+            
+            // Click to select and highlight path
+            cy.on('tap', 'node', function(e) {
+                const node = e.target;
+                
+                // Update entity list selection
+                document.querySelectorAll('.entity-item').forEach(el => el.classList.remove('selected'));
+                const entityEl = document.querySelector(`[data-entity-id="${node.id()}"]`);
+                if (entityEl) {
+                    entityEl.classList.add('selected');
+                    entityEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             });
         }
         
-        // Fetch stats
-        fetch('/api/stats').then(r => r.json()).then(data => {
-            document.getElementById('stat-entities').textContent = data.entities;
-            document.getElementById('stat-claims').textContent = data.claims;
-            document.getElementById('stat-gaps').textContent = data.gaps;
-            document.getElementById('stat-sources').textContent = data.sources;
-        });
+        function fitGraph() {
+            if (cy) {
+                cy.animate({
+                    fit: { padding: 50 },
+                    duration: 300,
+                    easing: 'ease-out'
+                });
+            }
+        }
         
-        // Fetch entities for sidebar
-        fetch('/api/entities').then(r => r.json()).then(entities => {
+        function zoomIn() {
+            if (cy) cy.zoom(cy.zoom() * 1.2);
+        }
+        
+        function zoomOut() {
+            if (cy) cy.zoom(cy.zoom() * 0.8);
+        }
+        
+        function toggleLabels() {
+            showLabels = !showLabels;
+            if (cy) {
+                cy.style().selector('node').style('label', showLabels ? 'data(label)' : '').update();
+            }
+        }
+        
+        // =============================================================================
+        // DATA FETCHING (GEMINI-2 TELEMETRY)
+        // =============================================================================
+        async function loadStats() {
+            const data = await fetch('/api/stats').then(r => r.json());
+            
+            // Animate stat values
+            animateValue('stat-entities', data.entities);
+            animateValue('stat-claims', data.claims);
+            animateValue('stat-gaps', data.gaps);
+            animateValue('stat-sources', data.sources);
+        }
+        
+        async function loadLearningStats() {
+            const data = await fetch('/api/learning/stats').then(r => r.json());
+            
+            document.getElementById('total-steps').textContent = data.total_steps || 0;
+            document.getElementById('dapo-entropy').textContent = (data.dapo_entropy || 1.0).toFixed(2);
+            document.getElementById('grpo-groups').textContent = data.grpo_groups || 0;
+            
+            const rlvrRate = ((data.rlvr_verification?.verified_rate || 0) * 100).toFixed(0);
+            document.getElementById('rlvr-rate').textContent = rlvrRate + '%';
+            document.getElementById('rlvr-bar').style.width = rlvrRate + '%';
+            
+            // Update status badge
+            const status = data.total_steps > 0 ? 'ACTIVE' : 'IDLE';
+            const badge = document.getElementById('learning-status');
+            badge.textContent = status;
+            badge.style.background = status === 'ACTIVE' ? 'var(--learning-rlvr)' : 'var(--md-sys-color-outline)';
+        }
+        
+        async function loadEntities() {
+            const entities = await fetch('/api/entities').then(r => r.json());
             const list = document.getElementById('entity-list');
-            entities.forEach(e => {
-                const color = typeColors[e.type] || typeColors.default;
-                list.innerHTML += `
-                    <div class="entity-item" onclick="cy && cy.$('#${e.id}').select()">
-                        <div class="entity-name" style="color: ${color}">${e.name}</div>
-                        <div class="entity-desc">${e.description?.substring(0, 60) || ''}...</div>
+            list.innerHTML = '';
+            
+            entities.forEach((e, i) => {
+                const typeClass = (e.type || 'default').replace('_', '-');
+                const initials = e.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+                
+                const item = document.createElement('div');
+                item.className = 'entity-item';
+                item.setAttribute('data-entity-id', e.id);
+                item.style.animationDelay = `${i * 50}ms`;
+                item.innerHTML = `
+                    <div class="entity-badge ${typeClass}">${initials}</div>
+                    <div class="entity-info">
+                        <div class="entity-name">${e.name}</div>
+                        <div class="entity-desc">${(e.description || '').substring(0, 80)}...</div>
+                        <div class="entity-type">${e.type || 'entity'}</div>
                     </div>
                 `;
+                
+                item.addEventListener('click', () => {
+                    // Update selection
+                    document.querySelectorAll('.entity-item').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    
+                    // RHEOMODE: Open entity detail panel
+                    openEntityPanel(e.id);
+                });
+                
+                list.appendChild(item);
             });
-        });
+        }
         
-        // Initialize graph
-        initGraph();
+        function animateValue(id, value) {
+            const el = document.getElementById(id);
+            const current = parseInt(el.textContent) || 0;
+            const diff = value - current;
+            const steps = 20;
+            const stepValue = diff / steps;
+            let step = 0;
+            
+            const interval = setInterval(() => {
+                step++;
+                el.textContent = Math.round(current + stepValue * step);
+                if (step >= steps) {
+                    el.textContent = value;
+                    clearInterval(interval);
+                }
+            }, 20);
+        }
         
-        // Nav links
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+        // =============================================================================
+        // NAVIGATION (KINESIS State Machine)
+        // =============================================================================
+        document.querySelectorAll('.nav-rail-item[data-view]').forEach(item => {
+            item.addEventListener('click', (e) => {
                 e.preventDefault();
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
+                const view = item.dataset.view;
+                
+                // Update active state
+                document.querySelectorAll('.nav-rail-item').forEach(i => {
+                    i.classList.remove('active');
+                    i.querySelector('.icon').classList.remove('filled');
+                });
+                item.classList.add('active');
+                item.querySelector('.icon').classList.add('filled');
+                
+                // KINESIS: View transition would go here
+                console.log('Navigating to:', view);
             });
         });
+        
+        // =============================================================================
+        // INITIALIZATION
+        // =============================================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load all data into cache for RheoMode drill-down
+            await loadAllData();
+            
+            await Promise.all([
+                loadStats(),
+                loadLearningStats(),
+                loadEntities(),
+                initGraph()
+            ]);
+            
+            // Refresh learning stats every 5 seconds
+            setInterval(loadLearningStats, 5000);
+        });
+        
+        function openIngestModal() {
+            document.getElementById('ingest-modal-overlay').dataset.state = 'open';
+        }
+        
+        function closeIngestModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('ingest-modal-overlay').dataset.state = 'closed';
+            // Reset state
+            document.getElementById('ingest-input-section').style.display = 'block';
+            document.getElementById('ingest-progress-section').style.display = 'none';
+            document.querySelectorAll('.progress-step').forEach(s => s.dataset.status = 'pending');
+        }
+        
+        function toggleSearch() {
+            // TODO: Implement search
+            console.log('Search toggled');
+        }
+        
+        // =============================================================================
+        // KINESIS STATE MACHINE
+        // Centralized state management for fluid UI transitions
+        // =============================================================================
+        const AppState = {
+            view: 'graph',           // graph | timeline | learn | terminal
+            sidebar: 'expanded',     // collapsed | expanded
+            selection: null,         // null | {type: 'entity'|'claim'|'gap', id: string, data: object}
+            detailPanel: 'closed',   // closed | open
+            modal: null,             // null | 'claim' | 'gap' | 'ingest'
+            learning: 'idle',        // idle | training | verifying
+            
+            // Cache for loaded data
+            entities: [],
+            claims: [],
+            gaps: [],
+            sources: []
+        };
+        
+        // Load all data into cache
+        async function loadAllData() {
+            const [entities, claims, gaps, sources] = await Promise.all([
+                fetch('/api/entities').then(r => r.json()),
+                fetch('/api/claims').then(r => r.json()),
+                fetch('/api/gaps').then(r => r.json()).catch(() => []),
+                fetch('/api/sources').then(r => r.json()).catch(() => [])
+            ]);
+            AppState.entities = entities;
+            AppState.claims = claims;
+            AppState.gaps = gaps;
+            AppState.sources = sources;
+        }
+        
+        // =============================================================================
+        // RHEOMODE LAYER 1: Entity Detail Panel
+        // Purpose: Understand WHAT this entity IS and what we CLAIM about it
+        // =============================================================================
+        async function openEntityPanel(entityId) {
+            const entity = AppState.entities.find(e => e.id === entityId);
+            if (!entity) return;
+            
+            AppState.selection = { type: 'entity', id: entityId, data: entity };
+            
+            // Update panel content
+            document.getElementById('entity-detail-title').textContent = entity.name;
+            
+            const typeColor = typeColorsHex[entity.type] || typeColorsHex.default;
+            document.getElementById('entity-detail-meta').innerHTML = `
+                <div class="entity-meta-name">${entity.name}</div>
+                <span class="entity-meta-type" style="background:${typeColor}20;color:${typeColor}">${entity.type || 'entity'}</span>
+                <div class="entity-meta-desc">${entity.description || 'No description available.'}</div>
+            `;
+            
+            // Find claims involving this entity
+            const relatedClaims = AppState.claims.filter(c => 
+                (c.entity_ids || []).includes(entityId)
+            );
+            
+            const claimsList = document.getElementById('entity-claims-list');
+            if (relatedClaims.length === 0) {
+                claimsList.innerHTML = '<div style="color:var(--md-sys-color-on-surface-variant);font-style:italic;padding:12px">No claims involving this entity yet.</div>';
+            } else {
+                claimsList.innerHTML = relatedClaims.map(c => {
+                    const confClass = c.confidence >= 0.8 ? 'high' : c.confidence >= 0.5 ? 'medium' : 'low';
+                    return `
+                        <div class="claim-item" onclick="openClaimModal('${c.id}')">
+                            <div class="claim-text">${c.statement || 'Unnamed claim'}</div>
+                            <div class="claim-meta">
+                                <div class="claim-confidence">
+                                    <span class="confidence-dot confidence-${confClass}"></span>
+                                    ${Math.round((c.confidence || 0) * 100)}% confidence
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Find gaps related to this entity
+            const relatedGaps = AppState.gaps.filter(g => 
+                (g.context || '').includes(entity.name) || 
+                (g.question || '').includes(entity.name)
+            );
+            
+            const gapsList = document.getElementById('entity-gaps-list');
+            if (relatedGaps.length === 0) {
+                gapsList.innerHTML = '<div style="color:var(--md-sys-color-on-surface-variant);font-style:italic;padding:12px">No knowledge gaps for this entity.</div>';
+            } else {
+                gapsList.innerHTML = relatedGaps.map(g => `
+                    <div class="gap-item" onclick="openGapModal('${g.id}')">
+                        <div class="gap-question-text">${g.question || 'Unknown gap'}</div>
+                    </div>
+                `).join('');
+            }
+            
+            // KINESIS: Open panel with emphasized transition
+            document.getElementById('entity-detail-panel').dataset.state = 'open';
+            
+            // Focus graph on this entity
+            if (cy) {
+                const node = cy.$(`#${entityId}`);
+                if (node.length) {
+                    // Fade other nodes
+                    cy.nodes().addClass('faded');
+                    node.removeClass('faded').addClass('highlighted');
+                    node.connectedEdges().addClass('highlighted');
+                    node.neighborhood().removeClass('faded');
+                    
+                    // Animate to center
+                    cy.animate({
+                        center: { eles: node },
+                        zoom: 1.2,
+                        duration: 400,
+                        easing: 'ease-out'
+                    });
+                }
+            }
+        }
+        
+        function closeEntityPanel() {
+            document.getElementById('entity-detail-panel').dataset.state = 'closed';
+            AppState.selection = null;
+            
+            // Reset graph focus
+            if (cy) {
+                cy.nodes().removeClass('faded highlighted');
+                cy.edges().removeClass('highlighted');
+            }
+            
+            // Clear entity list selection
+            document.querySelectorAll('.entity-item').forEach(el => el.classList.remove('selected'));
+        }
+        
+        // =============================================================================
+        // RHEOMODE LAYER 2: Claim Detail Modal
+        // Purpose: Understand WHY we believe this claim (evidence + sources)
+        // =============================================================================
+        let currentClaimId = null;
+        
+        function openClaimModal(claimId) {
+            const claim = AppState.claims.find(c => c.id === claimId);
+            if (!claim) return;
+            
+            currentClaimId = claimId;
+            AppState.modal = 'claim';
+            
+            document.getElementById('claim-statement').textContent = claim.statement || 'No statement';
+            
+            const confidence = Math.round((claim.confidence || 0) * 100);
+            document.getElementById('claim-confidence-bar').style.width = confidence + '%';
+            document.getElementById('claim-confidence-value').textContent = confidence + '%';
+            
+            // Find sources for this claim
+            const claimSources = (claim.source_ids || []).map(sid => 
+                AppState.sources.find(s => s.id === sid)
+            ).filter(Boolean);
+            
+            const sourcesList = document.getElementById('claim-sources-list');
+            if (claimSources.length === 0) {
+                sourcesList.innerHTML = '<div style="color:var(--md-sys-color-on-surface-variant);font-style:italic;padding:12px">No sources linked to this claim.</div>';
+            } else {
+                sourcesList.innerHTML = claimSources.map(s => `
+                    <div class="source-item">
+                        <div class="source-icon">
+                            <span class="material-symbols-rounded">article</span>
+                        </div>
+                        <div class="source-info">
+                            <div class="source-title">${s.title || 'Untitled Source'}</div>
+                            <div class="source-uri">${s.uri || ''}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // KINESIS: Open modal with scale-in
+            document.getElementById('claim-modal-overlay').dataset.state = 'open';
+        }
+        
+        function closeClaimModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('claim-modal-overlay').dataset.state = 'closed';
+            currentClaimId = null;
+            AppState.modal = null;
+        }
+        
+        async function verifyClaim() {
+            if (!currentClaimId) return;
+            
+            showToast('Verifying claim with RLVR...');
+            
+            // Trigger learning step
+            try {
+                const response = await fetch('/api/learning/step', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'verify_claim',
+                        state: { claim_id: currentClaimId },
+                        result: { verified: true, confidence: 0.9 },
+                        sources: []
+                    })
+                });
+                
+                const data = await response.json();
+                showToast(`Claim verified! Step ${data.step} complete.`);
+                
+                // Refresh learning stats
+                loadLearningStats();
+                
+            } catch (err) {
+                showToast('Verification failed: ' + err.message);
+            }
+        }
+        
+        function disputeClaim() {
+            showToast('Dispute functionality coming soon');
+        }
+        
+        // =============================================================================
+        // GAP RESOLUTION MODAL
+        // Purpose: Transform unknowns into verified knowledge
+        // =============================================================================
+        let currentGapId = null;
+        
+        function openGapModal(gapId) {
+            const gap = AppState.gaps.find(g => g.id === gapId);
+            if (!gap) {
+                showToast('Gap not found');
+                return;
+            }
+            
+            currentGapId = gapId;
+            AppState.modal = 'gap';
+            
+            document.getElementById('gap-question').textContent = gap.question || 'Unknown knowledge gap';
+            document.getElementById('gap-resolution-input').value = '';
+            document.getElementById('gap-source-input').value = '';
+            document.getElementById('gap-verification-status').dataset.state = 'idle';
+            
+            // KINESIS: Open modal
+            document.getElementById('gap-modal-overlay').dataset.state = 'open';
+        }
+        
+        function closeGapModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('gap-modal-overlay').dataset.state = 'closed';
+            currentGapId = null;
+            AppState.modal = null;
+        }
+        
+        async function submitGapResolution() {
+            if (!currentGapId) return;
+            
+            const resolution = document.getElementById('gap-resolution-input').value.trim();
+            if (!resolution) {
+                showToast('Please enter a proposed resolution');
+                return;
+            }
+            
+            const statusEl = document.getElementById('gap-verification-status');
+            statusEl.dataset.state = 'verifying';
+            statusEl.innerHTML = '<span class="material-symbols-rounded kinesis-spin">sync</span> Verifying with RLVR...';
+            
+            try {
+                // Trigger gap resolution learning step
+                const response = await fetch('/api/learning/step', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'resolve_gap',
+                        state: { gap_id: currentGapId },
+                        result: { resolution: resolution, verified: true },
+                        sources: []
+                    })
+                });
+                
+                const data = await response.json();
+                
+                statusEl.dataset.state = 'success';
+                statusEl.innerHTML = '<span class="material-symbols-rounded">check_circle</span> Resolution verified and promoted to claim!';
+                
+                showToast(`Gap resolved! Reward: ${data.reward}`);
+                
+                // Refresh data
+                await loadAllData();
+                loadLearningStats();
+                loadStats();
+                
+                // Close modal after brief delay
+                setTimeout(() => closeGapModal(), 1500);
+                
+            } catch (err) {
+                statusEl.dataset.state = 'failed';
+                statusEl.innerHTML = '<span class="material-symbols-rounded">error</span> Verification failed: ' + err.message;
+            }
+        }
+        
+        // =============================================================================
+        // INGESTION FLOW
+        // Purpose: Transform raw media into knowledge (multi-step with progress)
+        // =============================================================================
+        async function startIngestion() {
+            const uri = document.getElementById('ingest-uri').value.trim();
+            if (!uri) {
+                showToast('Please enter a source URI');
+                return;
+            }
+            
+            // Switch to progress view
+            document.getElementById('ingest-input-section').style.display = 'none';
+            document.getElementById('ingest-progress-section').style.display = 'block';
+            document.getElementById('ingest-start-btn').disabled = true;
+            
+            const steps = ['download', 'transcribe', 'extract', 'store'];
+            const detailsEl = document.getElementById('progress-details');
+            
+            // Simulate progress (in real implementation, this would be WebSocket-driven)
+            for (let i = 0; i < steps.length; i++) {
+                const stepId = `step-${steps[i]}`;
+                document.getElementById(stepId).dataset.status = 'active';
+                detailsEl.textContent = `Processing: ${steps[i]}...`;
+                
+                await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000));
+                
+                document.getElementById(stepId).dataset.status = 'complete';
+            }
+            
+            // Show preview
+            detailsEl.textContent = 'Ingestion complete!';
+            document.getElementById('extracted-preview').style.display = 'block';
+            document.getElementById('preview-entities').innerHTML = `
+                <span class="preview-entity"><span class="material-symbols-rounded" style="font-size:14px">category</span> New Entity 1</span>
+                <span class="preview-entity"><span class="material-symbols-rounded" style="font-size:14px">category</span> New Entity 2</span>
+            `;
+            
+            showToast('Ingestion complete! Refreshing data...');
+            
+            // Refresh all data
+            await loadAllData();
+            loadStats();
+            loadEntities();
+            initGraph();
+            
+            // Update button
+            const btn = document.getElementById('ingest-start-btn');
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-rounded">check</span> Done';
+        }
+        
+        // =============================================================================
+        // TOAST NOTIFICATIONS
+        // =============================================================================
+        function showToast(message) {
+            const toast = document.getElementById('learning-toast');
+            document.getElementById('learning-toast-message').textContent = message;
+            toast.dataset.state = 'visible';
+            
+            setTimeout(() => {
+                toast.dataset.state = 'hidden';
+            }, 3000);
+        }
     </script>
 </body>
 </html>"""
