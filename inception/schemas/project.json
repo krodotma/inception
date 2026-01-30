@@ -1,0 +1,105 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://inception.kroma.live/schemas/project.json",
+    "title": "Project",
+    "description": "Active work context linking resources. Maps to schema:Project.",
+    "type": "object",
+    "required": [
+        "@type",
+        "name",
+        "domainId",
+        "goal"
+    ],
+    "properties": {
+        "@context": {
+            "const": "https://inception.kroma.live/schemas/context.jsonld"
+        },
+        "@type": {
+            "const": "Project"
+        },
+        "@id": {
+            "type": "string",
+            "format": "uri"
+        },
+        "name": {
+            "type": "string"
+        },
+        "domainId": {
+            "type": "string",
+            "format": "uri",
+            "description": "Primary domain"
+        },
+        "relatedDomains": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "goal": {
+            "type": "string",
+            "description": "Project goal (Entelexis alignment)"
+        },
+        "entelexisPhase": {
+            "type": "string",
+            "enum": [
+                "potential",
+                "developing",
+                "actualized"
+            ],
+            "default": "potential"
+        },
+        "ideaIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "contactIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "procedureIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "skillIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "planning",
+                "active",
+                "paused",
+                "completed",
+                "archived"
+            ],
+            "default": "planning"
+        },
+        "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+        },
+        "blockingGapIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            },
+            "description": "Gaps blocking progress"
+        }
+    }
+}

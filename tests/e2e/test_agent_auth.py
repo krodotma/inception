@@ -2,8 +2,13 @@
 CODEX-1: Agent Auth E2E Tests
 Playwright test suite for Agent Auth overlay
 """
+import re
 import pytest
-from playwright.sync_api import Page, expect
+
+# Skip entire module if playwright is not installed
+playwright = pytest.importorskip("playwright.sync_api")
+Page = playwright.Page
+expect = playwright.expect
 
 
 class TestAgentAuthOverlay:
@@ -23,7 +28,7 @@ class TestAgentAuthOverlay:
         
         # Verify overlay is visible
         overlay = self.page.locator(".agent-auth-backdrop")
-        expect(overlay).to_have_class(/visible/)
+        expect(overlay).to_have_class(re.compile(r"visible"))
         
         # Verify overlay content is present
         expect(self.page.locator(".agent-auth-title")).to_contain_text("Connect AI Providers")
@@ -36,7 +41,7 @@ class TestAgentAuthOverlay:
         self.page.click(".agent-auth-close")
         
         overlay = self.page.locator(".agent-auth-backdrop")
-        expect(overlay).not_to_have_class(/visible/)
+        expect(overlay).not_to_have_class(re.compile(r"visible"))
 
     def test_overlay_closes_on_escape(self):
         """Verify overlay closes on Escape key."""
@@ -46,7 +51,7 @@ class TestAgentAuthOverlay:
         self.page.keyboard.press("Escape")
         
         overlay = self.page.locator(".agent-auth-backdrop")
-        expect(overlay).not_to_have_class(/visible/)
+        expect(overlay).not_to_have_class(re.compile(r"visible"))
 
     def test_five_provider_cards_present(self):
         """Verify all 5 provider cards are rendered."""
@@ -71,7 +76,7 @@ class TestAgentAuthOverlay:
         # Claude, Gemini, Codex, Antigravity should be connected
         for provider in ["claude", "gemini", "codex", "antigravity"]:
             card = self.page.locator(f'[data-provider="{provider}"]')
-            expect(card).to_have_class(/connected/)
+            expect(card).to_have_class(re.compile(r"connected"))
             expect(card.locator(".auth-button")).to_contain_text("✓")
 
     def test_kimi_shows_not_set(self):
@@ -80,7 +85,7 @@ class TestAgentAuthOverlay:
         self.page.wait_for_selector(".agent-auth-backdrop.visible")
         
         kimi_card = self.page.locator('[data-provider="kimi"]')
-        expect(kimi_card).not_to_have_class(/connected/)
+        expect(kimi_card).not_to_have_class(re.compile(r"connected"))
         expect(kimi_card.locator(".connection-badge")).to_contain_text("Not Set")
 
 
@@ -129,12 +134,12 @@ class TestFilterButtons:
         connected_btn = self.page.locator('[data-filter="connected"]')
         
         # Initially 'All' is active
-        expect(all_btn).to_have_class(/active/)
+        expect(all_btn).to_have_class(re.compile(r"active"))
         
         # Click 'Connected'
         connected_btn.click()
-        expect(connected_btn).to_have_class(/active/)
-        expect(all_btn).not_to_have_class(/active/)
+        expect(connected_btn).to_have_class(re.compile(r"active"))
+        expect(all_btn).not_to_have_class(re.compile(r"active"))
 
 
 class TestKimiModal:
@@ -153,7 +158,7 @@ class TestKimiModal:
         kimi_btn.click()
         
         modal = self.page.locator("#kimiModal")
-        expect(modal).to_have_class(/visible/)
+        expect(modal).to_have_class(re.compile(r"visible"))
 
     def test_modal_has_input_field(self):
         """Verify modal has API key input."""
@@ -175,7 +180,7 @@ class TestKimiModal:
         
         # Verify Kimi card is now connected
         kimi_card = self.page.locator('[data-provider="kimi"]')
-        expect(kimi_card).to_have_class(/connected/)
+        expect(kimi_card).to_have_class(re.compile(r"connected"))
         expect(kimi_card.locator(".auth-button")).to_contain_text("✓ Kimi Active")
 
     def test_cancel_closes_modal(self):
@@ -186,11 +191,11 @@ class TestKimiModal:
         self.page.click("button:has-text('Cancel')")
         
         modal = self.page.locator("#kimiModal")
-        expect(modal).not_to_have_class(/visible/)
+        expect(modal).not_to_have_class(re.compile(r"visible"))
         
         # Kimi should still be disconnected
         kimi_card = self.page.locator('[data-provider="kimi"]')
-        expect(kimi_card).not_to_have_class(/connected/)
+        expect(kimi_card).not_to_have_class(re.compile(r"connected"))
 
 
 class TestAccessibility:

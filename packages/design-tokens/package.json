@@ -1,0 +1,24 @@
+{
+    "name": "@inception/design-tokens",
+    "version": "1.0.0",
+    "description": "Shared design tokens for Inception UI - M3 motion, colors, typography, springs",
+    "main": "tokens.css",
+    "exports": {
+        ".": "./tokens.css",
+        "./motion": "./motion.css",
+        "./colors": "./colors.css",
+        "./typography": "./typography.css",
+        "./springs": "./springs.css"
+    },
+    "files": [
+        "*.css",
+        "scss/*.scss"
+    ],
+    "keywords": [
+        "design-tokens",
+        "m3",
+        "motion",
+        "inception"
+    ],
+    "license": "MIT"
+}

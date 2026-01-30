@@ -1,0 +1,99 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://inception.kroma.live/schemas/idea.json",
+    "title": "Idea",
+    "description": "Concept with dialectical structure (thesis/antithesis/synthesis). Maps to schema:CreativeWork.",
+    "type": "object",
+    "required": [
+        "@type",
+        "name",
+        "domainId"
+    ],
+    "properties": {
+        "@context": {
+            "const": "https://inception.kroma.live/schemas/context.jsonld"
+        },
+        "@type": {
+            "const": "Idea"
+        },
+        "@id": {
+            "type": "string",
+            "format": "uri"
+        },
+        "name": {
+            "type": "string",
+            "description": "Idea name/title"
+        },
+        "domainId": {
+            "type": "string",
+            "format": "uri",
+            "description": "Parent domain URI"
+        },
+        "thesis": {
+            "type": "string",
+            "description": "Primary position"
+        },
+        "antithesis": {
+            "type": "string",
+            "description": "Opposing position"
+        },
+        "synthesis": {
+            "type": "string",
+            "description": "Resolution/integration"
+        },
+        "dialecticalState": {
+            "type": "string",
+            "enum": [
+                "thesis_only",
+                "antithesis_proposed",
+                "synthesis_pending",
+                "resolved",
+                "unresolvable"
+            ],
+            "default": "thesis_only"
+        },
+        "thesisEvidenceIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "antithesisEvidenceIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "synthesisConfidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+        },
+        "resolutionMethod": {
+            "type": "string",
+            "enum": [
+                "consensus",
+                "evidence",
+                "authority",
+                "experimental",
+                null
+            ]
+        },
+        "epistemicGaps": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Knowledge we need to fill"
+        },
+        "aleatoricAmbiguities": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Inherent ambiguities to model"
+        }
+    }
+}

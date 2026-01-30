@@ -244,6 +244,10 @@ class GapPayload(BaseModel):
     description: str
     blocking_nids: list[int] = Field(default_factory=list, description="Claims blocked by this gap")
     resolution_hints: list[str] = Field(default_factory=list)
+    severity: float = Field(default=0.5, ge=0.0, le=1.0, description="Gap severity (0=minor, 1=critical)")
+    resolution_status: Literal["open", "in_progress", "resolved", "wontfix"] = "open"
+    resolved_by_nid: int | None = Field(default=None, description="Node that resolved this gap")
+    resolution_notes: str | None = None
 
 
 class SignPayload(BaseModel):
@@ -257,6 +261,29 @@ class SignPayload(BaseModel):
 
 # Type alias for payload union
 NodePayload = ClaimPayload | ProcedurePayload | EntityPayload | GapPayload | SignPayload | dict[str, Any]
+
+
+class VectorEmbeddingRecord(BaseModel):
+    """Record for storing vector embeddings of nodes."""
+    
+    nid: int = Field(description="Node NID this embedding belongs to")
+    model: str = Field(description="Embedding model used")
+    dimension: int = Field(description="Vector dimension")
+    vector: list[float] = Field(description="The embedding vector")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    # Optional metadata
+    text_hash: str | None = Field(default=None, description="Hash of text that was embedded")
+    version: int = Field(default=1, description="Embedding version for cache invalidation")
+    
+    def pack(self) -> bytes:
+        """Serialize to MessagePack."""
+        return msgpack.packb(self.model_dump(mode="json"))
+    
+    @classmethod
+    def unpack(cls, data: bytes) -> VectorEmbeddingRecord:
+        """Deserialize from MessagePack."""
+        return cls.model_validate(msgpack.unpackb(data))
 
 
 class NodeRecord(BaseModel):

@@ -1,0 +1,55 @@
+{
+    "@context": {
+        "@vocab": "https://schema.org/",
+        "inception": "https://inception.kroma.live/ontology/",
+        "Domain": "inception:Domain",
+        "Idea": "inception:Idea",
+        "Project": "inception:Project",
+        "Contact": "inception:Contact",
+        "DialecticalBranch": "inception:DialecticalBranch",
+        "InceptionContext": "inception:InceptionContext",
+        "parentDomain": {
+            "@id": "inception:parentDomain",
+            "@type": "@id"
+        },
+        "childDomains": {
+            "@id": "inception:childDomains",
+            "@type": "@id",
+            "@container": "@set"
+        },
+        "thesis": "inception:thesis",
+        "antithesis": "inception:antithesis",
+        "synthesis": "inception:synthesis",
+        "dialecticalState": "inception:dialecticalState",
+        "entelexisPhase": "inception:entelexisPhase",
+        "blockingGaps": {
+            "@id": "inception:blockingGaps",
+            "@type": "@id",
+            "@container": "@set"
+        },
+        "epistemicGaps": {
+            "@id": "inception:epistemicGaps",
+            "@container": "@list"
+        },
+        "aleatoricAmbiguities": {
+            "@id": "inception:aleatoricAmbiguities",
+            "@container": "@list"
+        },
+        "agentId": "inception:agentId",
+        "agentCapabilities": {
+            "@id": "inception:agentCapabilities",
+            "@container": "@list"
+        },
+        "trustScore": {
+            "@id": "inception:trustScore",
+            "@type": "xsd:decimal"
+        },
+        "branchType": "inception:branchType",
+        "proposingAgent": "inception:proposingAgent",
+        "resolved": {
+            "@id": "inception:resolved",
+            "@type": "xsd:boolean"
+        },
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    }
+}

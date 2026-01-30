@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inception — Visualizer Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://esm.sh/three@0.160.0",
+            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --void: #050508;
+            --crystalline-cyan: #64ffda;
+            --nebular-violet: #bd93f9;
+            --plasma-rose: #ff6b9d;
+            --solar-gold: #ffd93d;
+            --silver-mist: #8892b0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--void);
+            color: #e6f1ff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #visualizer-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Visualizer Picker */
+        #visualizer-picker {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 16px;
+            z-index: 1000;
+        }
+
+        .viz-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 30, 40, 0.8);
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .viz-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: var(--crystalline-cyan);
+            transform: translateY(-2px);
+        }
+
+        .viz-btn.active {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: var(--crystalline-cyan);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+
+        .viz-btn::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 10px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--crystalline-cyan);
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .viz-btn:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        /* Info Panel */
+        #info-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 16px 20px;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(189, 147, 249, 0.3);
+            border-radius: 12px;
+            z-index: 1000;
+            max-width: 280px;
+        }
+
+        #info-panel h2 {
+            font-size: 16px;
+            color: var(--nebular-violet);
+            margin-bottom: 4px;
+        }
+
+        #info-panel p {
+            font-size: 12px;
+            color: var(--silver-mist);
+            line-height: 1.4;
+        }
+
+        /* Keyboard hints */
+        #keyboard-hints {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 16px;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(136, 146, 176, 0.2);
+            border-radius: 10px;
+            font-size: 11px;
+            color: var(--silver-mist);
+            z-index: 1000;
+        }
+
+        .kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(60, 60, 80, 0.5);
+            border: 1px solid rgba(136, 146, 176, 0.3);
+            border-radius: 4px;
+            margin: 0 2px;
+            font-family: monospace;
+        }
+
+        /* Loading */
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            z-index: 2000;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(100, 255, 218, 0.1);
+            border-top-color: var(--crystalline-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #loading span {
+            font-size: 14px;
+            color: var(--silver-mist);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="visualizer-container"></div>
+
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <span>Loading visualizer...</span>
+    </div>
+
+    <div id="info-panel">
+        <h2 id="viz-name">Temporal Flow</h2>
+        <p id="viz-desc">Allen's Interval Algebra timeline for knowledge versioning</p>
+    </div>
+
+    <div id="keyboard-hints">
+        <span class="kbd">←</span> Previous
+        <span class="kbd">→</span> Next
+        <span class="kbd">1-0</span> Jump
+    </div>
+
+    <div id="visualizer-picker"></div>
+
+    <script type="module">
+        import { VisualizerRegistry, visualizerIds, getNextVisualizerId, getPreviousVisualizerId } from './visualizers/index.js';
+
+        const container = document.getElementById('visualizer-container');
+        const picker = document.getElementById('visualizer-picker');
+        const loading = document.getElementById('loading');
+        const vizName = document.getElementById('viz-name');
+        const vizDesc = document.getElementById('viz-desc');
+
+        let currentVisualizer = null;
+        let currentId = visualizerIds[0];
+
+        // Build picker buttons
+        visualizerIds.forEach((id, i) => {
+            const viz = VisualizerRegistry[id];
+            const btn = document.createElement('button');
+            btn.className = 'viz-btn';
+            btn.textContent = viz.icon;
+            btn.dataset.id = id;
+            btn.dataset.name = viz.name;
+            btn.title = viz.description;
+
+            btn.addEventListener('click', () => loadVisualizer(id));
+            picker.appendChild(btn);
+        });
+
+        async function loadVisualizer(id) {
+            // Show loading
+            loading.classList.remove('hidden');
+
+            // Cleanup current
+            if (currentVisualizer?.dispose) {
+                currentVisualizer.dispose();
+            }
+            container.innerHTML = '';
+
+            // Update UI
+            currentId = id;
+            const viz = VisualizerRegistry[id];
+            vizName.textContent = viz.name;
+            vizDesc.textContent = viz.description;
+
+            // Update picker buttons
+            document.querySelectorAll('.viz-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.id === id);
+            });
+
+            try {
+                // Load visualizer
+                const VisualizerClass = await viz.load();
+                currentVisualizer = new VisualizerClass(container);
+                currentVisualizer.init();
+
+                console.log(`[Gallery] Loaded: ${viz.name}`);
+            } catch (error) {
+                console.error(`[Gallery] Failed to load ${id}:`, error);
+                container.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#ff6b9d;">
+                        <div style="text-align:center;">
+                            <h2>Failed to load visualizer</h2>
+                            <p style="color:#8892b0;">${error.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Hide loading
+            loading.classList.add('hidden');
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                loadVisualizer(getNextVisualizerId(currentId));
+            } else if (e.key === 'ArrowLeft') {
+                loadVisualizer(getPreviousVisualizerId(currentId));
+            } else if (e.key >= '1' && e.key <= '9') {
+                const index = parseInt(e.key) - 1;
+                if (index < visualizerIds.length) {
+                    loadVisualizer(visualizerIds[index]);
+                }
+            } else if (e.key === '0') {
+                loadVisualizer(visualizerIds[9]);
+            }
+        });
+
+        // Load first visualizer
+        loadVisualizer(visualizerIds[0]);
+    </script>
+</body>
+
+</html>

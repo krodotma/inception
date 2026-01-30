@@ -1,0 +1,199 @@
+# ENTELECHEIA+ Swarm Configuration
+# Swarm ID: entelecheia-plus-2026-01-28-alpha
+# Created: 2026-01-28T10:02:35-08:00
+
+swarm:
+  id: entelecheia-plus-2026-01-28-alpha
+  name: "ENTELECHEIA+"
+  description: "Reactive Knowledge Surface with Stigmergic Coordination"
+  created_at: "2026-01-28T10:02:35-08:00"
+  status: hydrating
+
+# Agent Definitions
+agents:
+  - id: entelechia-alpha
+    name: "ENTELECHIA-α"
+    model: claude-opus-4-5-20260110
+    mode: ultrathink
+    personas:
+      - METACOG
+      - ARCHITECT
+    skills:
+      - skill-meta-icl.sh
+      - skill-complexity-manage.sh
+      - skill-self-organize.sh
+    context_files:
+      - entelecheia_plus_plan.md
+      - implementation_plan.md
+      - knowledge_seeding_strategy.md
+    role: "Philosophical Architecture & Meta-Learning"
+    active: true
+
+  - id: entelechia-beta
+    name: "ENTELECHIA-β"
+    model: claude-opus-4-5-20260110
+    mode: ultrathink
+    personas:
+      - DIALECTICA
+      - HARMONIST
+    skills:
+      - skill-rheomode-transform.sh
+      - skill-coobject-infer.sh
+      - skill-hybrid-reason.sh
+    context_files:
+      - semantic_bridge.py
+      - dialectical.py
+      - questioning_modes.py
+    role: "Dialectical Reasoning & Rheomode Transformation"
+    active: true
+
+  - id: entelechia-gamma
+    name: "ENTELECHIA-γ"
+    model: claude-opus-4-5-20260110
+    mode: ultrathink
+    personas:
+      - ARBITER
+      - ALCHEMIST
+    skills:
+      - skill-meaning-flow.sh
+      - skill-neurosymbolic.sh
+      - skill-meta-icl.sh
+    context_files:
+      - taxonomic_types.py
+      - skill_executor.py
+      - plan_v2_major_rewrite.md
+    role: "Integration Synthesis & Knowledge Transmutation"
+    active: true
+
+  - id: rheo-1
+    name: "RHEO-1"
+    model: gemini-2.5-pro
+    mode: deep
+    personas:
+      - PRESCIENT
+      - ONTOLOGIST
+    skills:
+      - skill-emergence-detect.sh
+      - skill-stigmergic-trace.sh
+      - skill-topology-emerge.sh
+    context_files:
+      - inception_project/overview.md
+      - pluribus_evolution/architecture
+    role: "Research & Future-State Prediction"
+    active: true
+
+  - id: rheo-2
+    name: "RHEO-2"
+    model: gemini-2.5-pro
+    mode: deep
+    personas:
+      - EMBEDDER
+      - TAXONOMIST
+    skills:
+      - skill-deep-embed.sh
+      - skill-neural-to-symbolic.sh
+      - skill-attention-design.sh
+    context_files:
+      - schemas/*.json
+      - eval/goldens/*.jsonl
+    role: "Embedding Strategies & Classification"
+    active: true
+
+  - id: compile-1
+    name: "COMPILE-1"
+    model: codex-5.2
+    mode: high
+    personas:
+      - COMPILER
+      - LOGICIAN
+    skills:
+      - skill-neurosymbolic.sh
+      - skill-symbolic-to-neural.sh
+      - skill-complexity-manage.sh
+    context_files:
+      - inception/db/*.py
+      - inception/execution/*.py
+    role: "Implementation Core & Formal Logic"
+    active: true
+
+  - id: compile-2
+    name: "COMPILE-2"
+    model: codex-5.2
+    mode: high
+    personas:
+      - EVAL-PRIME
+      - TRANSFORMER
+    skills:
+      - skill-attention-design.sh
+      - skill-meta-icl.sh
+      - skill-learning-optimizer.sh
+    context_files:
+      - tests/unit/*.py
+      - eval/*.py
+    role: "Testing & Verification"
+    active: true
+
+# Communication Protocol
+communication:
+  protocol: stigmergic
+  trace_dir: ~/.inception/traces
+  kernel_dir: ~/.inception/kernels
+  
+  channels:
+    - name: architecture
+      agents: [entelechia-alpha, entelechia-gamma, compile-1]
+      trace_type: task
+      
+    - name: dialectics
+      agents: [entelechia-beta, rheo-1]
+      trace_type: discovery
+      
+    - name: implementation
+      agents: [compile-1, compile-2]
+      trace_type: task
+      
+    - name: research
+      agents: [rheo-1, rheo-2]
+      trace_type: discovery
+
+# Phase Tracking
+phases:
+  current: 0
+  step: 1
+  total_steps: 300
+  
+  checkpoints:
+    - step: 20
+      name: "Foundation Ready"
+      status: pending
+    - step: 50
+      name: "Reactive Surface"
+      status: pending
+    - step: 90
+      name: "Co-Object Inference"
+      status: pending
+    - step: 120
+      name: "Stigmergic Coordination"
+      status: pending
+
+# Meta-ICL+ Configuration
+meta_icl:
+  kernel_dir: ~/.inception/kernels
+  context_distillation: true
+  context_transfer: true
+  few_to_zero_threshold: 0.85
+  negative_transfer_detection: true
+  
+# Stigmergic Configuration
+stigmergic:
+  trace_dir: ~/.inception/traces
+  evaporation_rate: 0.05
+  reinforcement_factor: 1.5
+  topology_update_interval: 300  # seconds
+
+# Futureproofing
+futureproof:
+  schema_versioning: true
+  plugin_architecture: true
+  embedding_abstraction: true
+  trace_based_coordination: true

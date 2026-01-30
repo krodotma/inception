@@ -1,0 +1,14 @@
+{
+    "name": "inception-neuro",
+    "version": "0.2.0",
+    "private": true,
+    "description": "Neurosymbolic Design Grammar - Pure expressive frontend with HyperApp + Three.js + Cytoscape. ZERO BUNDLER.",
+    "main": "index.html",
+    "scripts": {
+        "serve": "python3 -m http.server 3030",
+        "dev": "python3 -m http.server 3030"
+    },
+    "engines": {
+        "note": "No npm dependencies required - all libraries loaded via ES import maps from CDN"
+    }
+}

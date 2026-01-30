@@ -104,29 +104,118 @@ fi
 
 cd "$PROJECT_ROOT"
 echo "Scanning for unresolved gaps..."
-uv run python -c "
-from inception.db import get_db
-from inception.db.keys import NodeKind
+
+uv run python << 'PYTHON_SCRIPT'
+import sys
+import json
+from pathlib import Path
+
+try:
+    from inception.db import get_db
+    from inception.db.keys import NodeKind
+except ImportError:
+    print("Inception DB not available. Ensure the project is installed.")
+    sys.exit(1)
+
+def categorize_gap(gap):
+    """Categorize gap by type and suggest resolution strategy."""
+    gap_type = gap.payload.get('gap_type', 'unknown')
+    description = gap.payload.get('description', '')
+    
+    strategies = {
+        'undefined_term': {
+            'action': 'search_definition',
+            'sources': ['wikipedia', 'glossary', 'specification'],
+            'template': f'define "{description}"'
+        },
+        'missing_context': {
+            'action': 'search_background',
+            'sources': ['documentation', 'whitepaper', 'tutorial'],
+            'template': f'background on {description}'
+        },
+        'unresolved_reference': {
+            'action': 'locate_source',
+            'sources': ['arxiv', 'github', 'official_spec'],
+            'template': f'source for {description}'
+        },
+        'incomplete_procedure': {
+            'action': 'find_steps',
+            'sources': ['documentation', 'tutorial', 'stackoverflow'],
+            'template': f'how to {description} step by step'
+        },
+        'conflicting_claims': {
+            'action': 'dialectical_analysis',
+            'sources': ['academic', 'official'],
+            'template': f'comparison of {description}'
+        }
+    }
+    
+    return strategies.get(gap_type, {
+        'action': 'general_search',
+        'sources': ['web'],
+        'template': description
+    })
+
+def format_gap_report(gaps):
+    """Format gaps into actionable report."""
+    report = []
+    for i, gap in enumerate(gaps, 1):
+        category = categorize_gap(gap)
+        gap_type = gap.payload.get('gap_type', 'unknown')
+        desc = gap.payload.get('description', 'No description')
+        severity = gap.payload.get('severity', 0.5)
+        
+        report.append({
+            'index': i,
+            'nid': gap.nid,
+            'type': gap_type,
+            'description': desc[:80],
+            'severity': severity,
+            'action': category['action'],
+            'search_query': category['template'],
+            'sources': category['sources']
+        })
+    
+    return report
 
 try:
     db = get_db()
     gaps = [n for n in db.iter_nodes() if n.kind == NodeKind.GAP]
     
     if not gaps:
-        print('No gaps found in knowledge graph.')
-    else:
-        print(f'Found {len(gaps)} gap(s):')
-        for gap in gaps[:10]:
-            gap_type = gap.payload.get('gap_type', 'unknown')
-            desc = gap.payload.get('description', 'No description')[:50]
-            print(f'  [{gap_type}] {desc}...')
-        
+        print("✓ No gaps found in knowledge graph.")
+        sys.exit(0)
+    
+    # Sort by severity
+    gaps.sort(key=lambda g: g.payload.get('severity', 0.5), reverse=True)
+    
+    print(f"\n═══════════════════════════════════════════════════════════════")
+    print(f"  KNOWLEDGE GAPS: {len(gaps)} detected")
+    print(f"═══════════════════════════════════════════════════════════════\n")
+    
+    report = format_gap_report(gaps[:10])
+    
+    for item in report:
+        severity_bar = '█' * int(item['severity'] * 10)
+        print(f"[{item['index']:2}] {item['type'].upper()}")
+        print(f"    Description: {item['description']}")
+        print(f"    Severity: {severity_bar} ({item['severity']:.2f})")
+        print(f"    Suggested: {item['action']}")
+        print(f"    Query: \"{item['search_query']}\"")
+        print(f"    Sources: {', '.join(item['sources'])}")
         print()
-        print('Gap exploration not yet implemented.')
-        print('This is a placeholder for the enhancement.')
+    
+    # Output JSON for programmatic use
+    if len(sys.argv) > 1 and sys.argv[1] == '--json':
+        print(json.dumps(report, indent=2))
+
 except Exception as e:
-    print(f'Database not initialized or empty: {e}')
-" 2>/dev/null || echo "Placeholder: Gap explorer module not yet implemented"
+    print(f"Error accessing database: {e}")
+    sys.exit(1)
+PYTHON_SCRIPT
 
 echo ""
-echo "Done. Enhancement pending implementation."
+echo "═══════════════════════════════════════════════════════════════"
+echo "  Gap Explorer Complete"
+echo "═══════════════════════════════════════════════════════════════"
+

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inception — Observatory</title>
+    <meta name="description" content="Enter the knowledge cosmos. Where data breathes and understanding lives.">
+
+    <!-- Fonts: Distinctive mix -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
+
+    <!-- ES Module Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "hyperapp": "https://esm.sh/hyperapp@2.0.22",
+            "three": "https://esm.sh/three@0.170.0",
+            "three/addons/": "https://esm.sh/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <style>
+        /* ════════════════════════════════════════════════════════════════════════════
+         * THE OBSERVATORY — Phase 0: The Void
+         * Pure artistic expression married to Inception's purpose
+         * NO templates. NO grids. NO dashboards.
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Knowledge State Colors */
+            --void: #050508;
+            --void-deep: #020204;
+            --crystalline-cyan: #64ffda;
+            --nebular-violet: #bd93f9;
+            --plasma-rose: #ff6b9d;
+            --solar-gold: #ffd93d;
+            --silver-mist: #8892b0;
+            --pearl: #ccd6f6;
+            --white-hot: #e6f1ff;
+
+            /* Typography */
+            --font-display: 'Instrument Serif', Georgia, serif;
+            --font-body: 'Space Grotesk', system-ui, sans-serif;
+            --font-mono: 'DM Mono', monospace;
+
+            /* Motion */
+            --breath-duration: 8s;
+            --cursor-response: 0.15s;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--void);
+            color: var(--pearl);
+            font-family: var(--font-body);
+            cursor: crosshair;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * THE VOID — Breathing darkness
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #cosmos {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 50%,
+                    oklch(8% 0.02 280) 0%,
+                    oklch(4% 0.015 260) 40%,
+                    oklch(2% 0.01 240) 100%);
+            animation: cosmicBreath var(--breath-duration) ease-in-out infinite;
+        }
+
+        @keyframes cosmicBreath {
+
+            0%,
+            100% {
+                background: radial-gradient(ellipse at 50% 50%,
+                        oklch(8% 0.02 280) 0%,
+                        oklch(4% 0.015 260) 40%,
+                        oklch(2% 0.01 240) 100%);
+            }
+
+            50% {
+                background: radial-gradient(ellipse at 48% 52%,
+                        oklch(9% 0.025 275) 0%,
+                        oklch(5% 0.02 265) 45%,
+                        oklch(2% 0.01 245) 100%);
+            }
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * NOISE TEXTURE — Film grain for organic feel
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #noise {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * CURSOR LIGHT — Gentle gravitational attraction
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #cursor-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center,
+                    oklch(60% 0.1 180 / 0.08) 0%,
+                    oklch(50% 0.15 280 / 0.04) 30%,
+                    transparent 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.5s ease;
+            z-index: 2;
+            mix-blend-mode: screen;
+        }
+
+        #cursor-glow.hidden {
+            opacity: 0;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * DISTANT STARS — Existing knowledge as points of light
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--crystalline-cyan);
+            border-radius: 50%;
+            opacity: 0;
+            animation: starTwinkle 4s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--crystalline-cyan);
+        }
+
+        @keyframes starTwinkle {
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * INPUT EMERGENCE — Rises from void on intent
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #input-container {
+            position: fixed;
+            bottom: 10vh;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+        }
+
+        #input-container.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        #inception-input {
+            width: 500px;
+            max-width: 80vw;
+            padding: 1.25rem 2rem;
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            font-weight: 300;
+            color: var(--pearl);
+            background: oklch(10% 0.02 280 / 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid oklch(100% 0 0 / 0.08);
+            border-radius: 24px;
+            outline: none;
+            transition: all 0.4s ease;
+        }
+
+        #inception-input::placeholder {
+            color: var(--silver-mist);
+            opacity: 0.6;
+        }
+
+        #inception-input:focus {
+            border-color: var(--crystalline-cyan);
+            box-shadow:
+                0 0 30px oklch(70% 0.15 180 / 0.15),
+                0 20px 60px oklch(0% 0 0 / 0.4);
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * HINT TEXT — Ghost guidance
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #hint {
+            position: fixed;
+            bottom: 5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--silver-mist);
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 100;
+        }
+
+        #hint.visible {
+            opacity: 0.4;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * OBSERVATORY TITLE — Ethereal presence
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #title {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #title.faded {
+            opacity: 0.1;
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        #title h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 400;
+            font-style: italic;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            background: linear-gradient(180deg,
+                    var(--white-hot) 0%,
+                    var(--pearl) 50%,
+                    var(--silver-mist) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        #title p {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--crystalline-cyan);
+            opacity: 0.7;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * STATS GLYPH — Minimal corner presence
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #stats-glyph {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--silver-mist);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 100;
+            text-align: right;
+        }
+
+        #stats-glyph.visible {
+            opacity: 0.5;
+        }
+
+        #stats-glyph:hover {
+            opacity: 1;
+        }
+
+        #stats-glyph .stat-line {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        #stats-glyph .stat-value {
+            color: var(--crystalline-cyan);
+            min-width: 3ch;
+            text-align: right;
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * LOADING STATE — Knowledge approaching
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        #loading-pulse {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--crystalline-cyan);
+            opacity: 0;
+            z-index: 5;
+        }
+
+        #loading-pulse.active {
+            animation: loadingPulse 2s ease-out infinite;
+        }
+
+        @keyframes loadingPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0.8;
+                border-width: 2px;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+                border-width: 0.5px;
+            }
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * RESPONSIVE — Maintain the void at all sizes
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        @media (max-width: 600px) {
+            #inception-input {
+                width: 90vw;
+                padding: 1rem 1.5rem;
+            }
+
+            #title h1 {
+                font-size: 3rem;
+            }
+        }
+
+        /* ════════════════════════════════════════════════════════════════════════════
+         * REDUCED MOTION — Respect preferences
+         * ════════════════════════════════════════════════════════════════════════════ */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- The Void -->
+    <div id="cosmos"></div>
+    <div id="noise"></div>
+    <div id="cursor-glow" class="hidden"></div>
+    <div id="loading-pulse"></div>
+
+    <!-- Stars (will be populated dynamically) -->
+    <div id="stars"></div>
+
+    <!-- Title -->
+    <div id="title">
+        <h1>Inception</h1>
+        <p>Enter the knowledge cosmos</p>
+    </div>
+
+    <!-- Stats Glyph -->
+    <div id="stats-glyph">
+        <div class="stat-line">
+            <span>Entities</span>
+            <span class="stat-value" id="stat-entities">—</span>
+        </div>
+        <div class="stat-line">
+            <span>Claims</span>
+            <span class="stat-value" id="stat-claims">—</span>
+        </div>
+        <div class="stat-line">
+            <span>Gaps</span>
+            <span class="stat-value" id="stat-gaps">—</span>
+        </div>
+    </div>
+
+    <!-- Input -->
+    <div id="input-container">
+        <input type="text" id="inception-input" placeholder="Ask anything, paste a URL, or just explore..."
+            autocomplete="off" spellcheck="false">
+    </div>
+
+    <!-- Hint -->
+    <div id="hint">
+        Press <kbd>/</kbd> to begin · <kbd>Esc</kbd> to observe
+    </div>
+
+    <script type="module">
+        // ════════════════════════════════════════════════════════════════════════════
+        // THE OBSERVATORY — Phase 0: Core Interactions + 3D Cosmos
+        // ════════════════════════════════════════════════════════════════════════════
+
+        import { KnowledgeCosmos } from './lib/cosmos.js';
+        import { StyleEngine, createStylePicker } from './lib/styles.js';
+
+        const cosmos = document.getElementById('cosmos');
+        const cursorGlow = document.getElementById('cursor-glow');
+        const inputContainer = document.getElementById('input-container');
+        const input = document.getElementById('inception-input');
+        const title = document.getElementById('title');
+        const hint = document.getElementById('hint');
+        const statsGlyph = document.getElementById('stats-glyph');
+        const loadingPulse = document.getElementById('loading-pulse');
+        const starsContainer = document.getElementById('stars');
+
+        // State
+        let isInputMode = false;
+        let mousePosition = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let stats = { entities: 0, claims: 0, gaps: 0 };
+        let knowledgeCosmos = null;
+        let cosmos3DEnabled = true;
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // 3D KNOWLEDGE COSMOS
+        // ════════════════════════════════════════════════════════════════════════════
+
+        function init3DCosmos() {
+            const container = document.createElement('div');
+            container.id = 'cosmos-3d';
+            container.style.cssText = `
+                position: fixed;
+                inset: 0;
+                z-index: 3;
+                pointer-events: auto;
+            `;
+            document.body.insertBefore(container, document.getElementById('noise'));
+
+            knowledgeCosmos = new KnowledgeCosmos(container);
+            knowledgeCosmos.loadFromAPI('/api/graph');
+
+            window.addEventListener('nodeHover', (e) => showNodeTooltip(e.detail));
+            window.addEventListener('nodeUnhover', () => hideNodeTooltip());
+            window.addEventListener('nodeSelect', (e) => focusNode(e.detail));
+
+            console.log('[Observatory] 3D Knowledge Cosmos activated');
+        }
+
+        function showNodeTooltip(data) {
+            let tooltip = document.getElementById('node-tooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'node-tooltip';
+                tooltip.style.cssText = `
+                    position: fixed;
+                    bottom: 20vh;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    padding: 1rem 2rem;
+                    background: oklch(10% 0.02 280 / 0.9);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid oklch(100% 0 0 / 0.1);
+                    border-radius: 16px;
+                    font-family: var(--font-body);
+                    font-size: 0.9rem;
+                    color: var(--pearl);
+                    z-index: 200;
+                    max-width: 400px;
+                    text-align: center;
+                    transition: opacity 0.3s ease;
+                `;
+                document.body.appendChild(tooltip);
+            }
+            tooltip.innerHTML = `
+                <div style="font-weight: 500; margin-bottom: 0.5rem;">${data.label || 'Knowledge Node'}</div>
+                <div style="font-size: 0.75rem; color: var(--silver-mist);">
+                    ${data.type ? data.type.toUpperCase() : 'NODE'} 
+                    ${data.confidence ? `· ${Math.round(data.confidence * 100)}% confident` : ''}
+                </div>
+            `;
+            tooltip.style.opacity = '1';
+        }
+
+        function hideNodeTooltip() {
+            const tooltip = document.getElementById('node-tooltip');
+            if (tooltip) tooltip.style.opacity = '0';
+        }
+
+        function focusNode(data) {
+            title.classList.add('faded');
+            console.log('[Observatory] Focused on:', data.label);
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // CURSOR GLOW — Follow mouse with gentle lag
+        // ════════════════════════════════════════════════════════════════════════════
+
+        document.addEventListener('mousemove', (e) => {
+            mousePosition = { x: e.clientX, y: e.clientY };
+            cursorGlow.style.left = `${e.clientX}px`;
+            cursorGlow.style.top = `${e.clientY}px`;
+            cursorGlow.classList.remove('hidden');
+        });
+
+        document.addEventListener('mouseleave', () => {
+            cursorGlow.classList.add('hidden');
+        });
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // INPUT MODE — Toggle with / key
+        // ════════════════════════════════════════════════════════════════════════════
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && !isInputMode) {
+                e.preventDefault();
+                enterInputMode();
+            } else if (e.key === 'Escape') {
+                if (isInputMode) {
+                    exitInputMode();
+                } else {
+                    title.classList.remove('faded');
+                }
+            } else if (e.key === '3' && e.ctrlKey) {
+                toggle3DCosmos();
+            }
+        });
+
+        function enterInputMode() {
+            isInputMode = true;
+            inputContainer.classList.add('visible');
+            title.classList.add('faded');
+            hint.classList.remove('visible');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function exitInputMode() {
+            isInputMode = false;
+            inputContainer.classList.remove('visible');
+            title.classList.remove('faded');
+            input.blur();
+            input.value = '';
+            setTimeout(() => hint.classList.add('visible'), 500);
+        }
+
+        function toggle3DCosmos() {
+            const container = document.getElementById('cosmos-3d');
+            if (container) {
+                cosmos3DEnabled = !cosmos3DEnabled;
+                container.style.opacity = cosmos3DEnabled ? '1' : '0';
+                container.style.pointerEvents = cosmos3DEnabled ? 'auto' : 'none';
+                console.log(`[Observatory] 3D Cosmos ${cosmos3DEnabled ? 'enabled' : 'disabled'}`);
+            }
+        }
+
+        // Show hint after initial delay
+        setTimeout(() => {
+            hint.classList.add('visible');
+        }, 2000);
+
+        // Show stats after longer delay
+        setTimeout(() => {
+            statsGlyph.classList.add('visible');
+        }, 3000);
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // INPUT HANDLING — Process queries and URLs
+        // ════════════════════════════════════════════════════════════════════════════
+
+        input.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter' && input.value.trim()) {
+                const value = input.value.trim();
+                await processInput(value);
+            }
+        });
+
+        async function processInput(value) {
+            const isUrl = /^https?:\/\//.test(value);
+            const isYouTube = /youtube\.com|youtu\.be/.test(value);
+
+            if (isUrl) {
+                startIngestion(value, isYouTube ? 'video' : 'web');
+            } else {
+                startQuery(value);
+            }
+
+            exitInputMode();
+        }
+
+        function startIngestion(url, type) {
+            console.log(`[Observatory] Ingesting ${type}: ${url}`);
+            loadingPulse.classList.add('active');
+
+            if (knowledgeCosmos) {
+                knowledgeCosmos.createNode({
+                    id: `ingest-${Date.now()}`,
+                    type: 'source',
+                    label: url.substring(0, 50),
+                    sourceType: type
+                });
+            }
+
+            setTimeout(() => {
+                loadingPulse.classList.remove('active');
+                if (knowledgeCosmos) {
+                    knowledgeCosmos.createNode({
+                        id: `claim-${Date.now()}`,
+                        type: 'claim',
+                        label: 'Extracted claim from source',
+                        confidence: 0.75
+                    });
+                }
+                spawnKnowledgeStar();
+            }, 3000);
+        }
+
+        function startQuery(query) {
+            console.log(`[Observatory] Query: ${query}`);
+            loadingPulse.classList.add('active');
+            setTimeout(() => loadingPulse.classList.remove('active'), 1500);
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // STARS — Spawn knowledge points (2D fallback)
+        // ════════════════════════════════════════════════════════════════════════════
+
+        function spawnKnowledgeStar() {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = `${Math.random() * 80 + 10}%`;
+            star.style.top = `${Math.random() * 60 + 20}%`;
+            star.style.animationDelay = `${Math.random() * 4}s`;
+            starsContainer.appendChild(star);
+            stats.claims++;
+            document.getElementById('stat-claims').textContent = stats.claims;
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // API CONNECTION — Fetch real data from Inception
+        // ════════════════════════════════════════════════════════════════════════════
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    stats = data;
+                    document.getElementById('stat-entities').textContent = stats.entities || 0;
+                    document.getElementById('stat-claims').textContent = stats.claims || 0;
+                    document.getElementById('stat-gaps').textContent = stats.gaps || 0;
+                }
+            } catch (e) {
+                console.log('[Observatory] Offline mode - 3D cosmos will use demo data');
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // STYLE VARIANT ENGINE
+        // ════════════════════════════════════════════════════════════════════════════
+
+        const styleEngine = new StyleEngine();
+
+        // Connect style engine to 3D cosmos for bloom/fog updates
+        styleEngine.onVariantChange((variant) => {
+            if (knowledgeCosmos && variant.three) {
+                // Update Three.js post-processing if cosmos supports it
+                if (knowledgeCosmos.updatePostProcessing) {
+                    knowledgeCosmos.updatePostProcessing(variant.three);
+                }
+            }
+        });
+
+        // ════════════════════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ════════════════════════════════════════════════════════════════════════════
+
+        console.log('[Observatory] Inception knowledge cosmos initialized');
+        console.log('[Observatory] Controls: / = input, Esc = overview, Ctrl+3 = toggle 3D, S = styles');
+
+        setTimeout(() => init3DCosmos(), 500);
+        fetchStats();
+
+        // Initialize style engine and picker
+        styleEngine.restoreFromStorage();
+        createStylePicker(styleEngine);
+    </script>
+</body>
+
+</html>

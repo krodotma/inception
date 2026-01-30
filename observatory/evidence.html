@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inception — Evidence Dashboard</title>
+    <meta name="description" content="Tuftean data visualization for Inception knowledge graph">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://esm.sh/three@0.160.0",
+            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-dim: #8b949e;
+            --accent: #58a6ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-title {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title span {
+            color: var(--text-dim);
+        }
+
+        .evidence-badge {
+            font-family: ui-monospace, monospace;
+            font-size: 10px;
+            padding: 4px 8px;
+            background: #1f6feb22;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-dim);
+            color: var(--text);
+        }
+
+        .nav-btn.active {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .nav-btn kbd {
+            font-family: ui-monospace, monospace;
+            font-size: 10px;
+            padding: 2px 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .visualizer-container {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .status-bar a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .status-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-title">
+            Inception Evidence Dashboard
+            <span>·</span>
+            <span class="evidence-badge">TUFTE MODE</span>
+        </div>
+        <nav class="nav" id="nav">
+            <button class="nav-btn active" data-viz="claim-table">
+                <kbd>1</kbd> Claims
+            </button>
+            <button class="nav-btn" data-viz="source-panel">
+                <kbd>2</kbd> Sources
+            </button>
+            <button class="nav-btn" data-viz="gap-matrix">
+                <kbd>3</kbd> Gaps
+            </button>
+            <button class="nav-btn" data-viz="dialectical-comparison">
+                <kbd>4</kbd> Dialectics
+            </button>
+            <button class="nav-btn" data-viz="timeline">
+                <kbd>5</kbd> Timeline
+            </button>
+        </nav>
+    </header>
+
+    <main class="main">
+        <div class="visualizer-container" id="visualizer-container">
+            <div class="loading">Loading visualizer...</div>
+        </div>
+    </main>
+
+    <footer class="status-bar">
+        <span id="status">Claim Table loaded</span>
+        <span>
+            <a href="cognitive.html">Art Mode</a> ·
+            Keys 1-5 to switch views
+        </span>
+    </footer>
+
+    <script type="module">
+        import { EvidenceVisualizers } from './visualizers/index.js';
+
+        const container = document.getElementById('visualizer-container');
+        const nav = document.getElementById('nav');
+        const status = document.getElementById('status');
+
+        let currentViz = null;
+        let currentId = 'claim-table';
+
+        async function loadVisualizer(id) {
+            // Dispose current
+            if (currentViz && currentViz.dispose) {
+                currentViz.dispose();
+            }
+
+            // Update UI
+            nav.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.viz === id);
+            });
+
+            container.innerHTML = '<div class="loading">Loading visualizer...</div>';
+
+            // Load new visualizer
+            const config = EvidenceVisualizers[id];
+            if (!config) {
+                container.innerHTML = '<div class="loading">Unknown visualizer</div>';
+                return;
+            }
+
+            try {
+                const VisualizerClass = await config.load();
+                container.innerHTML = '';
+                currentViz = new VisualizerClass(container);
+                currentViz.init();
+                currentId = id;
+                status.textContent = `${config.name} loaded — ${config.purpose}`;
+            } catch (err) {
+                console.error('Failed to load visualizer:', err);
+                container.innerHTML = `<div class="loading">Error: ${err.message}</div>`;
+            }
+        }
+
+        // Navigation clicks
+        nav.addEventListener('click', (e) => {
+            const btn = e.target.closest('.nav-btn');
+            if (btn && btn.dataset.viz) {
+                loadVisualizer(btn.dataset.viz);
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const vizIds = Object.keys(EvidenceVisualizers);
+            const num = parseInt(e.key);
+            if (num >= 1 && num <= vizIds.length) {
+                loadVisualizer(vizIds[num - 1]);
+            }
+        });
+
+        // Initial load
+        loadVisualizer('claim-table');
+    </script>
+</body>
+
+</html>

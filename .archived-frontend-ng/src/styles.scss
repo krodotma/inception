@@ -1,0 +1,284 @@
+/* Inception Web UX - Global Styles */
+/* Angular 17 + Material Web 3 + KINESIS Motion System */
+
+/* Import M3 Motion Tokens */
+@import 'motion-tokens.css';
+
+/* =============================================================================
+ * M3 COLOR SYSTEM (Dynamic - AURA Token Bridge)
+ * Colors now reference AURA tokens with M3 fallbacks for unthemed state
+ * ============================================================================= */
+
+:root {
+    /* AURA Token Defaults (applied before AuraStyleService initializes) */
+    --color-primary: oklch(65% 0.25 280);
+    --color-primary-container: oklch(25% 0.12 280);
+    --color-secondary: oklch(60% 0.20 310);
+    --color-accent: oklch(70% 0.30 100);
+    --color-background: oklch(10% 0.02 280);
+    --color-surface: oklch(15% 0.025 280);
+    --color-surface-container: oklch(18% 0.03 280);
+    --color-foreground: oklch(95% 0.01 280);
+    --color-muted: oklch(40% 0.02 280);
+    --color-border: oklch(25% 0.02 280);
+    --color-glow: oklch(75% 0.3 280);
+
+    /* AURA Motion defaults */
+    --motion-duration-base: 300ms;
+    --motion-duration-fast: 150ms;
+    --motion-duration-slow: 450ms;
+    --motion-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    --motion-stagger: 30ms;
+
+    /* AURA Layout defaults */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+    --space-unit: 8px;
+
+    /* AURA Effects defaults */
+    --glow-strength: 0.5;
+    --glow-spread: 20px;
+    --glass-blur: 16px;
+    --glass-tint-opacity: 0.15;
+    --hover-scale: 1.02;
+    --hover-lift: 2px;
+
+    /* AURA Shadows */
+    --shadow-1: 0 1px 3px oklch(0% 0 0 / 0.12);
+    --shadow-2: 0 3px 6px oklch(0% 0 0 / 0.15);
+    --shadow-3: 0 6px 12px oklch(0% 0 0 / 0.18);
+    --shadow-4: 0 10px 24px oklch(0% 0 0 / 0.22);
+    --shadow-5: 0 16px 48px oklch(0% 0 0 / 0.28);
+
+    /* M3 → AURA Bridge (M3 aliases point to AURA tokens) */
+    --md-sys-color-surface: var(--color-background);
+    --md-sys-color-surface-dim: var(--color-background);
+    --md-sys-color-surface-bright: var(--color-surface-container);
+    --md-sys-color-surface-container-lowest: var(--color-background);
+    --md-sys-color-surface-container-low: var(--color-surface);
+    --md-sys-color-surface-container: var(--color-surface);
+    --md-sys-color-surface-container-high: var(--color-surface-container);
+    --md-sys-color-surface-container-highest: var(--color-surface-container);
+
+    /* On Surface - derived from foreground */
+    --md-sys-color-on-surface: var(--color-foreground);
+    --md-sys-color-on-surface-variant: var(--color-muted);
+
+    /* Primary */
+    --md-sys-color-primary: var(--color-primary);
+    --md-sys-color-on-primary: var(--color-background);
+    --md-sys-color-primary-container: var(--color-primary-container);
+    --md-sys-color-on-primary-container: var(--color-foreground);
+
+    /* Secondary */
+    --md-sys-color-secondary: var(--color-secondary);
+    --md-sys-color-on-secondary: var(--color-background);
+    --md-sys-color-secondary-container: var(--color-primary-container);
+    --md-sys-color-on-secondary-container: var(--color-foreground);
+
+    /* Tertiary - use accent */
+    --md-sys-color-tertiary: var(--color-accent);
+    --md-sys-color-on-tertiary: var(--color-background);
+    --md-sys-color-tertiary-container: var(--color-primary-container);
+    --md-sys-color-on-tertiary-container: var(--color-foreground);
+
+    /* Error - fixed */
+    --md-sys-color-error: #f38ba8;
+    --md-sys-color-on-error: #601425;
+    --md-sys-color-error-container: #7d293b;
+    --md-sys-color-on-error-container: #ffd9de;
+
+    /* Outline */
+    --md-sys-color-outline: var(--color-border);
+    --md-sys-color-outline-variant: var(--color-border);
+
+    /* Inverse */
+    --md-sys-color-inverse-surface: var(--color-foreground);
+    --md-sys-color-inverse-on-surface: var(--color-background);
+    --md-sys-color-inverse-primary: var(--color-primary);
+
+    /* Background */
+    --md-sys-color-background: var(--color-background);
+    --md-sys-color-on-background: var(--color-foreground);
+
+    /* Scrim */
+    --md-sys-color-scrim: #000000;
+    --md-sys-color-shadow: #000000;
+
+    /* M3 Elevation -> AURA shadows */
+    --md-sys-elevation-level0: none;
+    --md-sys-elevation-level1: var(--shadow-1);
+    --md-sys-elevation-level2: var(--shadow-2);
+    --md-sys-elevation-level3: var(--shadow-3);
+    --md-sys-elevation-level4: var(--shadow-4);
+    --md-sys-elevation-level5: var(--shadow-5);
+
+    /* M3 Shape -> AURA radius */
+    --md-sys-shape-corner-none: 0;
+    --md-sys-shape-corner-extra-small: var(--radius-sm);
+    --md-sys-shape-corner-small: var(--radius-md);
+    --md-sys-shape-corner-medium: var(--radius-lg);
+    --md-sys-shape-corner-large: var(--radius-xl);
+    --md-sys-shape-corner-extra-large: calc(var(--radius-xl) * 1.4);
+    --md-sys-shape-corner-full: var(--radius-full);
+
+    /* M3 Motion -> AURA motion */
+    --md-motion-duration-short-1: calc(var(--motion-duration-fast) * 0.5);
+    --md-motion-duration-short-2: calc(var(--motion-duration-fast) * 0.67);
+    --md-motion-duration-short-3: calc(var(--motion-duration-fast) * 0.83);
+    --md-motion-duration-short-4: var(--motion-duration-fast);
+    --md-motion-duration-medium-1: calc(var(--motion-duration-base) * 0.83);
+    --md-motion-duration-medium-2: var(--motion-duration-base);
+    --md-motion-duration-medium-3: calc(var(--motion-duration-base) * 1.17);
+    --md-motion-duration-medium-4: calc(var(--motion-duration-base) * 1.33);
+    --md-motion-duration-long-1: var(--motion-duration-slow);
+    --md-motion-duration-long-2: calc(var(--motion-duration-slow) * 1.17);
+    --md-motion-duration-long-3: calc(var(--motion-duration-slow) * 1.33);
+    --md-motion-duration-long-4: calc(var(--motion-duration-slow) * 1.5);
+}
+
+/* =============================================================================
+ * M3 TYPOGRAPHY SCALE
+ * ============================================================================= */
+
+:root {
+    --md-sys-typescale-display-large: 400 57px/64px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-display-medium: 400 45px/52px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-display-small: 400 36px/44px 'Inter', system-ui, sans-serif;
+
+    --md-sys-typescale-headline-large: 400 32px/40px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-headline-medium: 400 28px/36px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-headline-small: 400 24px/32px 'Inter', system-ui, sans-serif;
+
+    --md-sys-typescale-title-large: 400 22px/28px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-title-medium: 500 16px/24px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-title-small: 500 14px/20px 'Inter', system-ui, sans-serif;
+
+    --md-sys-typescale-body-large: 400 16px/24px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-body-medium: 400 14px/20px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-body-small: 400 12px/16px 'Inter', system-ui, sans-serif;
+
+    --md-sys-typescale-label-large: 500 14px/20px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-label-medium: 500 12px/16px 'Inter', system-ui, sans-serif;
+    --md-sys-typescale-label-small: 500 11px/16px 'Inter', system-ui, sans-serif;
+}
+
+/* =============================================================================
+ * BASE RESET & GLOBAL STYLES
+ * ============================================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    font: var(--md-sys-typescale-body-medium);
+    background: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================================================
+ * VIEW TRANSITIONS (KINESIS Core)
+ * ============================================================================= */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: var(--md-motion-duration-medium-3);
+    animation-timing-function: var(--md-motion-easing-emphasized);
+}
+
+::view-transition-old(root) {
+    animation-name: md-fade-out;
+}
+
+::view-transition-new(root) {
+    animation-name: md-fade-in;
+}
+
+/* Shared element transitions */
+[style*="view-transition-name"] {
+    contain: layout;
+}
+
+/* =============================================================================
+ * FOCUS MANAGEMENT
+ * ============================================================================= */
+
+:focus-visible {
+    outline: 2px solid var(--md-sys-color-primary);
+    outline-offset: 2px;
+    border-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+/* =============================================================================
+ * SCROLLBAR STYLING
+ * ============================================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--md-sys-color-surface-container-low);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline);
+    border-radius: var(--md-sys-shape-corner-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--md-sys-color-outline-variant);
+}
+
+/* =============================================================================
+ * UTILITY CLASSES
+ * ============================================================================= */
+
+.surface {
+    background: var(--md-sys-color-surface);
+}
+
+.surface-container {
+    background: var(--md-sys-color-surface-container);
+}
+
+.surface-container-high {
+    background: var(--md-sys-color-surface-container-high);
+}
+
+.elevation-1 {
+    box-shadow: var(--md-sys-elevation-level1);
+}
+
+.elevation-2 {
+    box-shadow: var(--md-sys-elevation-level2);
+}
+
+.elevation-3 {
+    box-shadow: var(--md-sys-elevation-level3);
+}
+
+.rounded-small {
+    border-radius: var(--md-sys-shape-corner-small);
+}
+
+.rounded-medium {
+    border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.rounded-large {
+    border-radius: var(--md-sys-shape-corner-large);
+}

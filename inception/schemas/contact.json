@@ -1,0 +1,85 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://inception.kroma.live/schemas/contact.json",
+    "title": "Contact",
+    "description": "Person or agent with expertise. Maps to schema:Person or schema:Organization.",
+    "type": "object",
+    "required": [
+        "@type",
+        "name",
+        "contactType"
+    ],
+    "properties": {
+        "@context": {
+            "const": "https://inception.kroma.live/schemas/context.jsonld"
+        },
+        "@type": {
+            "const": "Contact"
+        },
+        "@id": {
+            "type": "string",
+            "format": "uri"
+        },
+        "name": {
+            "type": "string"
+        },
+        "schemaType": {
+            "type": "string",
+            "enum": [
+                "schema:Person",
+                "schema:Organization"
+            ],
+            "default": "schema:Person"
+        },
+        "contactType": {
+            "type": "string",
+            "enum": [
+                "human",
+                "agent",
+                "organization"
+            ]
+        },
+        "agentId": {
+            "type": "string",
+            "description": "Agent persona ID (e.g., 'DIALECTICA')"
+        },
+        "agentCapabilities": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "email": {
+            "type": "string",
+            "format": "email"
+        },
+        "url": {
+            "type": "string",
+            "format": "uri"
+        },
+        "affiliation": {
+            "type": "string"
+        },
+        "expertiseDomainIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            },
+            "description": "Domain URIs of expertise"
+        },
+        "trustScore": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.5
+        },
+        "projectIds": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        }
+    }
+}

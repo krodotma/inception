@@ -107,3 +107,69 @@ class TestContentHash:
         hash1 = compute_content_hash(data)
         hash2 = compute_content_hash(data)
         assert hash1 == hash2
+    
+    def test_xxh64_hash(self):
+        """Test xxh64 content hash."""
+        data = b"hello world"
+        hash_val = compute_content_hash(data, algorithm="xxh64")
+        assert len(hash_val) == 16  # xxh64 produces 16 hex chars
+    
+    def test_invalid_algorithm(self):
+        """Test that invalid algorithm raises error."""
+        with pytest.raises(ValueError):
+            compute_content_hash(b"test", algorithm="md5")
+
+
+class TestFileHash:
+    """Tests for file hashing."""
+    
+    def test_file_hash_sha256(self, tmp_path):
+        """Test SHA256 file hash."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"hello world")
+        
+        hash_val = compute_file_hash(str(test_file), algorithm="sha256")
+        assert len(hash_val) == 64
+    
+    def test_file_hash_xxh128(self, tmp_path):
+        """Test xxh128 file hash."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"hello world")
+        
+        hash_val = compute_file_hash(str(test_file), algorithm="xxh128")
+        assert len(hash_val) == 32
+    
+    def test_file_hash_xxh64(self, tmp_path):
+        """Test xxh64 file hash."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"hello world")
+        
+        hash_val = compute_file_hash(str(test_file), algorithm="xxh64")
+        assert len(hash_val) == 16
+    
+    def test_file_hash_determinism(self, tmp_path):
+        """Test that same file produces same hash."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"consistent content")
+        
+        hash1 = compute_file_hash(str(test_file))
+        hash2 = compute_file_hash(str(test_file))
+        assert hash1 == hash2
+    
+    def test_file_hash_invalid_algorithm(self, tmp_path):
+        """Test that invalid algorithm raises error."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"test")
+        
+        with pytest.raises(ValueError):
+            compute_file_hash(str(test_file), algorithm="md5")
+    
+    def test_large_file_chunked(self, tmp_path):
+        """Test hashing large file in chunks."""
+        test_file = tmp_path / "large.bin"
+        # Create a file larger than default chunk size
+        test_file.write_bytes(b"x" * 100000)
+        
+        hash_val = compute_file_hash(str(test_file), algorithm="sha256", chunk_size=1024)
+        assert len(hash_val) == 64
+

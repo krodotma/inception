@@ -2,6 +2,9 @@
 
 import pytest
 
+# Skip entire module if spacy is not installed (required by inception.analyze)
+pytest.importorskip("spacy", reason="spacy is required for analyze module tests")
+
 # Check if spaCy model is available
 try:
     import spacy

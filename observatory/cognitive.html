@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatory — Cognitive Tools</title>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://esm.sh/three@0.160.0",
+            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: monospace;
+            background: #000;
+            color: #888;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #cosmos {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Edge selector */
+        #edge {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    #64ffda33 15%,
+                    #bd93f933 30%,
+                    #ff6b9d33 45%,
+                    #ffd93d33 60%,
+                    #44aa8833 75%,
+                    #8892b033 90%,
+                    transparent 100%);
+            cursor: pointer;
+            transition: width 0.3s;
+            z-index: 100;
+        }
+
+        #edge:hover {
+            width: 220px;
+            background: linear-gradient(to right, #0a0a0f 0%, transparent 100%);
+        }
+
+        #edge:hover .tool {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tool {
+            position: absolute;
+            left: 15px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.3s;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .tool:nth-child(1) {
+            top: 50px;
+        }
+
+        .tool:nth-child(2) {
+            top: 110px;
+        }
+
+        .tool:nth-child(3) {
+            top: 170px;
+        }
+
+        .tool:nth-child(4) {
+            top: 250px;
+        }
+
+        .tool:nth-child(5) {
+            top: 310px;
+        }
+
+        .tool:nth-child(6) {
+            top: 370px;
+        }
+
+        .tool:nth-child(7) {
+            top: 430px;
+        }
+
+        .tool-name {
+            font-size: 10px;
+            color: #64ffda;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .tool-tech {
+            font-size: 8px;
+            color: #444;
+            margin-top: 2px;
+        }
+
+        .tool.active .tool-name {
+            color: #fff;
+        }
+
+        .tool:hover .tool-name {
+            color: #fff;
+            text-shadow: 0 0 10px #64ffda;
+        }
+
+        /* Separator */
+        .separator {
+            position: absolute;
+            left: 15px;
+            height: 1px;
+            width: 60px;
+            background: #333;
+        }
+
+        .separator:nth-of-type(4) {
+            top: 235px;
+        }
+
+        #info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #info h1 {
+            font-size: 12px;
+            font-weight: normal;
+            color: #555;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        #info .metaphor {
+            font-size: 10px;
+            font-style: italic;
+            color: #444;
+            margin-top: 4px;
+        }
+
+        #info .tech {
+            font-size: 9px;
+            color: #333;
+            margin-top: 2px;
+        }
+
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            color: #333;
+            letter-spacing: 0.5em;
+            z-index: 200;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            font-size: 9px;
+            color: #333;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cosmos"></div>
+
+    <div id="loading">INITIALIZING</div>
+
+    <div id="edge">
+        <!-- Purpose-Aligned -->
+        <div class="tool active" data-id="gap-resolution">
+            <div class="tool-name">Gap Resolution</div>
+            <div class="tool-tech">Three.js</div>
+        </div>
+        <div class="tool" data-id="dialectical-synthesis">
+            <div class="tool-name">Dialectical Synthesis</div>
+            <div class="tool-tech">Canvas 2D</div>
+        </div>
+        <div class="tool" data-id="temporal-query">
+            <div class="tool-name">Temporal Query</div>
+            <div class="tool-tech">Canvas 2D</div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Visual Enrichment -->
+        <div class="tool" data-id="void-shader">
+            <div class="tool-name">Void Shader</div>
+            <div class="tool-tech">Raw WebGL + GLSL</div>
+        </div>
+        <div class="tool" data-id="knowledge-force">
+            <div class="tool-name">Knowledge Force</div>
+            <div class="tool-tech">D3.js SVG</div>
+        </div>
+        <div class="tool" data-id="organic-morphing">
+            <div class="tool-name">Organic Morphing</div>
+            <div class="tool-tech">Pure CSS</div>
+        </div>
+        <div class="tool" data-id="uncertainty-field">
+            <div class="tool-name">Uncertainty Field</div>
+            <div class="tool-tech">WebGL Noise</div>
+        </div>
+    </div>
+
+    <div id="info">
+        <h1 id="tool-name">Gap Resolution</h1>
+        <div class="metaphor" id="tool-metaphor">Gravitational singularities</div>
+        <div class="tech" id="tool-tech">Three.js</div>
+    </div>
+
+    <div id="hint">← hover edge | 1-7 keys</div>
+
+    <script type="module">
+        import { PurposeVisualizers, purposeIds } from './visualizers/index.js';
+        
+        const cosmos = document.getElementById('cosmos');
+        const loading = document.getElementById('loading');
+        const toolName = document.getElementById('tool-name');
+        const toolMetaphor = document.getElementById('tool-metaphor');
+        const toolTech = document.getElementById('tool-tech');
+        
+        let currentVisualizer = null;
+        let currentId = 'gap-resolution';
+        
+        async function loadTool(id) {
+            loading.classList.remove('hidden');
+            
+            if (currentVisualizer?.dispose) {
+                currentVisualizer.dispose();
+            }
+            cosmos.innerHTML = '';
+            
+            currentId = id;
+            const tool = PurposeVisualizers[id];
+            
+            toolName.textContent = tool.name;
+            toolMetaphor.textContent = tool.metaphor;
+            toolTech.textContent = tool.tech;
+            
+            document.querySelectorAll('.tool').forEach(t => {
+                t.classList.toggle('active', t.dataset.id === id);
+            });
+            
+            try {
+                const VisualizerClass = await tool.load();
+                currentVisualizer = new VisualizerClass(cosmos);
+                currentVisualizer.init();
+                console.log(`[Observatory] ${tool.name} (${tool.tech})`);
+            } catch (err) {
+                console.error(`[Observatory] Failed:`, err);
+                cosmos.innerHTML = `<div style="color:#ff6b9d;padding:40px;font:11px monospace;">ERROR: ${err.message}</div>`;
+            }
+            
+            loading.classList.add('hidden');
+        }
+        
+        document.querySelectorAll('.tool').forEach(tool => {
+            tool.addEventListener('click', () => loadTool(tool.dataset.id));
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '7') {
+                const idx = parseInt(e.key) - 1;
+                if (idx < purposeIds.length) {
+                    loadTool(purposeIds[idx]);
+                }
+            }
+        });
+        
+        loadTool('gap-resolution');
+    </script>
+</body>
+
+</html>

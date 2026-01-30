@@ -3,7 +3,12 @@ Property-based tests for database invariants.
 """
 
 import pytest
-from hypothesis import given, strategies as st, settings
+
+# Skip entire module if hypothesis is not installed
+hypothesis = pytest.importorskip("hypothesis")
+given = hypothesis.given
+st = hypothesis.strategies
+settings = hypothesis.settings
 
 from inception.db.keys import (
     encode_nid_key,

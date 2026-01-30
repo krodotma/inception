@@ -1,0 +1,368 @@
+/* ============================================================================
+ * M3 Motion Tokens - Reference Implementation
+ * ============================================================================
+ * Use these tokens for all animations in cinematic web applications.
+ * Based on Material Design 3 motion specifications.
+ * ============================================================================ */
+
+:root {
+    /* =========================================================================
+   * DURATION SCALE
+   * =========================================================================
+   * Short: Micro-interactions, state changes
+   * Medium: Component transitions, reveals
+   * Long: Page transitions, complex choreography
+   * ========================================================================= */
+
+    /* Short durations (quick feedback) */
+    --md-motion-duration-short-1: 50ms;
+    --md-motion-duration-short-2: 100ms;
+    --md-motion-duration-short-3: 150ms;
+    --md-motion-duration-short-4: 200ms;
+
+    /* Medium durations (component transitions) */
+    --md-motion-duration-medium-1: 250ms;
+    --md-motion-duration-medium-2: 300ms;
+    --md-motion-duration-medium-3: 350ms;
+    --md-motion-duration-medium-4: 400ms;
+
+    /* Long durations (page/view transitions) */
+    --md-motion-duration-long-1: 450ms;
+    --md-motion-duration-long-2: 500ms;
+    --md-motion-duration-long-3: 550ms;
+    --md-motion-duration-long-4: 600ms;
+
+    /* Extra long (complex choreography) */
+    --md-motion-duration-extra-long-1: 700ms;
+    --md-motion-duration-extra-long-2: 800ms;
+    --md-motion-duration-extra-long-3: 900ms;
+    --md-motion-duration-extra-long-4: 1000ms;
+
+    /* =========================================================================
+   * EASING CURVES
+   * =========================================================================
+   * Standard: General purpose
+   * Emphasized: Primary UI transitions (most common)
+   * Legacy: CSS keyword equivalents
+   * ========================================================================= */
+
+    /* Standard easings */
+    --md-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+    --md-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+    --md-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+
+    /* Emphasized easings (USE THESE PRIMARILY) */
+    --md-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --md-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+    --md-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+    /* Legacy (avoid if possible) */
+    --md-motion-easing-linear: linear;
+    --md-motion-easing-ease-in: ease-in;
+    --md-motion-easing-ease-out: ease-out;
+    --md-motion-easing-ease-in-out: ease-in-out;
+
+    /* =========================================================================
+   * SPRING PARAMETERS
+   * =========================================================================
+   * For physics-based animations (used with Web Animations API or libraries)
+   * ========================================================================= */
+
+    /* Gentle spring (smooth settle) */
+    --md-motion-spring-gentle-stiffness: 100;
+    --md-motion-spring-gentle-damping: 15;
+    --md-motion-spring-gentle-mass: 1;
+
+    /* Default spring (balanced) */
+    --md-motion-spring-default-stiffness: 170;
+    --md-motion-spring-default-damping: 26;
+    --md-motion-spring-default-mass: 1;
+
+    /* Snappy spring (quick response) */
+    --md-motion-spring-snappy-stiffness: 400;
+    --md-motion-spring-snappy-damping: 40;
+    --md-motion-spring-snappy-mass: 1;
+
+    /* Bouncy spring (playful) */
+    --md-motion-spring-bouncy-stiffness: 180;
+    --md-motion-spring-bouncy-damping: 12;
+    --md-motion-spring-bouncy-mass: 1;
+
+    /* =========================================================================
+   * TRANSITION PRESETS
+   * =========================================================================
+   * Common transition patterns ready to use
+   * ========================================================================= */
+
+    /* Fade */
+    --md-transition-fade-in: opacity var(--md-motion-duration-medium-2) var(--md-motion-easing-emphasized);
+    --md-transition-fade-out: opacity var(--md-motion-duration-short-4) var(--md-motion-easing-emphasized-accelerate);
+
+    /* Scale */
+    --md-transition-scale-in: transform var(--md-motion-duration-medium-2) var(--md-motion-easing-emphasized-decelerate);
+    --md-transition-scale-out: transform var(--md-motion-duration-short-4) var(--md-motion-easing-emphasized-accelerate);
+
+    /* Slide */
+    --md-transition-slide-in: transform var(--md-motion-duration-medium-3) var(--md-motion-easing-emphasized-decelerate);
+    --md-transition-slide-out: transform var(--md-motion-duration-medium-1) var(--md-motion-easing-emphasized-accelerate);
+
+    /* Combined */
+    --md-transition-enter:
+        opacity var(--md-motion-duration-medium-2) var(--md-motion-easing-emphasized),
+        transform var(--md-motion-duration-medium-3) var(--md-motion-easing-emphasized-decelerate);
+    --md-transition-exit:
+        opacity var(--md-motion-duration-short-4) var(--md-motion-easing-emphasized-accelerate),
+        transform var(--md-motion-duration-medium-1) var(--md-motion-easing-emphasized-accelerate);
+}
+
+/* ============================================================================
+ * REDUCED MOTION
+ * ============================================================================
+ * CRITICAL: Always respect user's motion preferences
+ * ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================================================
+ * ANIMATION KEYFRAMES
+ * ============================================================================ */
+
+/* Fade In */
+@keyframes md-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Fade Out */
+@keyframes md-fade-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+/* Scale In (from 95%) */
+@keyframes md-scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Scale Out */
+@keyframes md-scale-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+/* Slide Up (from 16px) */
+@keyframes md-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide Down */
+@keyframes md-slide-down {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+}
+
+/* Slide In from Right */
+@keyframes md-slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Slide In from Left */
+@keyframes md-slide-in-left {
+    from {
+        opacity: 0;
+        transform: translateX(-32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Expand (height from 0) */
+@keyframes md-expand {
+    from {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 1000px;
+        /* Arbitrary large value */
+        overflow: visible;
+    }
+}
+
+/* Collapse */
+@keyframes md-collapse {
+    from {
+        opacity: 1;
+        max-height: 1000px;
+        overflow: hidden;
+    }
+
+    to {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+    }
+}
+
+/* Pulse (attention) */
+@keyframes md-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(124, 77, 255, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 12px rgba(124, 77, 255, 0);
+    }
+}
+
+/* Shake (error) */
+@keyframes md-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-4px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+/* ============================================================================
+ * UTILITY CLASSES
+ * ============================================================================ */
+
+/* Apply standard enter animation */
+.md-animate-enter {
+    animation: md-scale-in var(--md-motion-duration-medium-2) var(--md-motion-easing-emphasized-decelerate);
+}
+
+/* Apply standard exit animation */
+.md-animate-exit {
+    animation: md-scale-out var(--md-motion-duration-short-4) var(--md-motion-easing-emphasized-accelerate);
+}
+
+/* Slide up entrance */
+.md-animate-slide-up {
+    animation: md-slide-up var(--md-motion-duration-medium-3) var(--md-motion-easing-emphasized-decelerate);
+}
+
+/* Staggered children (use with nth-child) */
+.md-stagger>*:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.md-stagger>*:nth-child(2) {
+    animation-delay: 50ms;
+}
+
+.md-stagger>*:nth-child(3) {
+    animation-delay: 100ms;
+}
+
+.md-stagger>*:nth-child(4) {
+    animation-delay: 150ms;
+}
+
+.md-stagger>*:nth-child(5) {
+    animation-delay: 200ms;
+}
+
+.md-stagger>*:nth-child(6) {
+    animation-delay: 250ms;
+}
+
+.md-stagger>*:nth-child(7) {
+    animation-delay: 300ms;
+}
+
+.md-stagger>*:nth-child(8) {
+    animation-delay: 350ms;
+}
+
+/* Attention pulse */
+.md-animate-pulse {
+    animation: md-pulse 2s infinite;
+}
+
+/* Error shake */
+.md-animate-shake {
+    animation: md-shake 0.4s ease-in-out;
+}

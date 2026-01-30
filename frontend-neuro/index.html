@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inception — Neurosymbolic Interface</title>
+    <meta name="description"
+        content="Neurosymbolic Knowledge Visualization - where data is design and AI thinking becomes visible">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./lib/css/app.css">
+
+    <!-- ES Module Import Map - NO BUNDLER REQUIRED -->
+    <script type="importmap">
+    {
+        "imports": {
+            "hyperapp": "https://esm.sh/hyperapp@2.0.22",
+            "three": "https://esm.sh/three@0.170.0",
+            "three/addons/": "https://esm.sh/three@0.170.0/examples/jsm/",
+            "cytoscape": "https://esm.sh/cytoscape@3.30.0"
+        }
+    }
+    </script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>

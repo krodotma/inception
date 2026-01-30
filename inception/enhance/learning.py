@@ -429,14 +429,14 @@ class ActiveLearner:
     def _uncertainty_sampling(self, candidates: list[dict], n: int) -> list[dict]:
         """Select candidates with highest prediction uncertainty."""
         scored = []
-        for c in candidates:
+        for i, c in enumerate(candidates):
             entity_id = c.get("id", "")
             preds = self._model_predictions.get(entity_id, [0.5])
             uncertainty = self.compute_uncertainty(entity_id, preds)
-            scored.append((uncertainty, c))
+            scored.append((uncertainty, i, c))  # Add index as tiebreaker
         
-        scored.sort(reverse=True)
-        return [c for _, c in scored[:n]]
+        scored.sort(key=lambda x: (-x[0], x[1]))  # Sort by uncertainty desc, then index
+        return [c for _, _, c in scored[:n]]
     
     def _query_by_committee(self, candidates: list[dict], n: int) -> list[dict]:
         """Select candidates where committee disagrees most."""

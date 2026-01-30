@@ -63,6 +63,33 @@ class PipelineConfig:
 
 
 @dataclass
+class VectorConfig:
+    """Vector embedding configuration."""
+    
+    model: str = "all-MiniLM-L6-v2"  # sentence-transformers model
+    dimension: int = 384
+    index_type: str = "hnsw"  # hnsw, flat, ivf
+    normalize: bool = True
+    batch_size: int = 32
+    ef_construction: int = 200  # HNSW parameter
+    ef_search: int = 50  # HNSW search parameter
+    m: int = 16  # HNSW connections per layer
+
+
+@dataclass
+class LLMConfig:
+    """LLM provider configuration."""
+    
+    provider: str = "anthropic"  # anthropic, openai, local
+    model: str = "claude-sonnet-4-20250514"  # model identifier
+    temperature: float = 0.7
+    max_tokens: int = 4096
+    api_key_env: str = "ANTHROPIC_API_KEY"  # env var for API key
+    base_url: str | None = None  # custom endpoint
+    timeout_seconds: int = 30
+
+
+@dataclass
 class Config:
     """Main configuration for Inception."""
     
@@ -74,6 +101,8 @@ class Config:
     whisper: WhisperConfig = field(default_factory=WhisperConfig)
     ocr: OCRConfig = field(default_factory=OCRConfig)
     pipeline: PipelineConfig = field(default_factory=PipelineConfig)
+    vector: VectorConfig = field(default_factory=VectorConfig)
+    llm: LLMConfig = field(default_factory=LLMConfig)
     
     # Schema and pipeline versions for determinism
     schema_version: str = "0.1.0"
@@ -183,6 +212,19 @@ class Config:
                 "max_workers": self.pipeline.max_workers,
                 "seed": self.pipeline.seed,
             },
+            "vector": {
+                "model": self.vector.model,
+                "dimension": self.vector.dimension,
+                "index_type": self.vector.index_type,
+                "normalize": self.vector.normalize,
+                "batch_size": self.vector.batch_size,
+            },
+            "llm": {
+                "provider": self.llm.provider,
+                "model": self.llm.model,
+                "temperature": self.llm.temperature,
+                "max_tokens": self.llm.max_tokens,
+            },
         }
     
     def save(self, path: Path | str) -> None:
@@ -247,6 +289,24 @@ def _apply_env_overrides(config: Config) -> None:
     }
     
     for env_var, (attr_path, converter) in env_mappings.items():
+        value = os.environ.get(env_var)
+        if value is not None:
+            parts = attr_path.split(".")
+            obj = config
+            for part in parts[:-1]:
+                obj = getattr(obj, part)
+            setattr(obj, parts[-1], converter(value))
+    
+    # Additional vector/LLM env overrides
+    vector_env_mappings = {
+        "INCEPTION_VECTOR_MODEL": ("vector.model", str),
+        "INCEPTION_VECTOR_DIM": ("vector.dimension", int),
+        "INCEPTION_LLM_PROVIDER": ("llm.provider", str),
+        "INCEPTION_LLM_MODEL": ("llm.model", str),
+        "INCEPTION_LLM_TEMPERATURE": ("llm.temperature", float),
+    }
+    
+    for env_var, (attr_path, converter) in vector_env_mappings.items():
         value = os.environ.get(env_var)
         if value is not None:
             parts = attr_path.split(".")

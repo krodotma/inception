@@ -52,6 +52,26 @@ class QueryResult:
 
 
 @dataclass
+class VectorSearchResult:
+    """Result of vector similarity search."""
+    
+    query_text: str
+    query_vector: list[float] | None = None
+    
+    # Results with similarity scores
+    results: list[tuple[int, float, NodeRecord | None]] = field(default_factory=list)  # (nid, score, node)
+    
+    execution_time_ms: float = 0.0
+    
+    @property
+    def top_node(self) -> NodeRecord | None:
+        """Get the most similar node."""
+        if self.results:
+            return self.results[0][2]
+        return None
+
+
+@dataclass
 class EvidenceChain:
     """Chain of evidence supporting a claim or node."""
     
@@ -520,6 +540,64 @@ class QueryEngine:
             gaps.append(node)
         
         return gaps
+    
+    def vector_search(
+        self,
+        query: str,
+        top_k: int = 10,
+        node_kinds: list[NodeKind] | None = None,
+        min_similarity: float = 0.0,
+    ) -> VectorSearchResult:
+        """
+        Semantic vector search using embeddings.
+        
+        Args:
+            query: Search query text
+            top_k: Number of results to return
+            node_kinds: Filter by node kinds
+            min_similarity: Minimum similarity threshold
+        
+        Returns:
+            VectorSearchResult with similar nodes
+        """
+        import time
+        start_time = time.time()
+        
+        # Placeholder - actual implementation would:
+        # 1. Embed the query using sentence-transformers
+        # 2. Search the vector index (HNSW/FAISS)
+        # 3. Return top-k results with similarity scores
+        
+        # For now, fall back to full-text search simulation
+        query_lower = query.lower()
+        results = []
+        
+        for node in self.db.iter_nodes():
+            if node_kinds and node.kind not in node_kinds:
+                continue
+            
+            # Simple text similarity as placeholder
+            payload_str = str(node.payload).lower()
+            if query_lower in payload_str:
+                # Simulate similarity score based on match position
+                score = 0.7 + (0.3 * (1.0 / (payload_str.find(query_lower) + 1)))
+                score = min(score, 1.0)
+                
+                if score >= min_similarity:
+                    results.append((node.nid, score, node))
+        
+        # Sort by score descending
+        results.sort(key=lambda x: x[1], reverse=True)
+        results = results[:top_k]
+        
+        execution_time = (time.time() - start_time) * 1000
+        
+        return VectorSearchResult(
+            query_text=query,
+            query_vector=None,  # Would be actual embedding
+            results=results,
+            execution_time_ms=execution_time,
+        )
 
 
 def query_temporal(

@@ -2,10 +2,15 @@
 CODEX-1 ULTRATHINK: Performance & Animation Benchmarks
 Testing 60fps consistency, memory leaks, and animation smoothness
 """
+import re
 import pytest
 import time
 import json
-from playwright.sync_api import Page, expect
+
+# Skip entire module if playwright is not installed
+playwright = pytest.importorskip("playwright.sync_api")
+Page = playwright.Page
+expect = playwright.expect
 
 
 class TestAnimationPerformance:
@@ -273,7 +278,7 @@ class TestAnimationIntegration:
         self.page.click(".demo-trigger")
         self.page.wait_for_timeout(500)
         
-        expect(self.page.locator(".agent-auth-backdrop")).to_have_class(/visible/)
+        expect(self.page.locator(".agent-auth-backdrop")).to_have_class(re.compile(r"visible"))
         
         # 2. Filter to connected
         self.page.click('[data-filter="connected"]')
@@ -285,7 +290,7 @@ class TestAnimationIntegration:
         self.page.click('[data-provider="kimi"] .auth-button')
         self.page.wait_for_timeout(300)
         
-        expect(self.page.locator("#kimiModal")).to_have_class(/visible/)
+        expect(self.page.locator("#kimiModal")).to_have_class(re.compile(r"visible"))
         
         # 4. Enter key and save
         self.page.fill("#kimiApiKey", "sk-test-key")
@@ -294,13 +299,13 @@ class TestAnimationIntegration:
         
         # 5. Verify Kimi connected
         kimi_card = self.page.locator('[data-provider="kimi"]')
-        expect(kimi_card).to_have_class(/connected/)
+        expect(kimi_card).to_have_class(re.compile(r"connected"))
         
         # 6. Close overlay
         self.page.click(".agent-auth-close")
         self.page.wait_for_timeout(300)
         
-        expect(self.page.locator(".agent-auth-backdrop")).not_to_have_class(/visible/)
+        expect(self.page.locator(".agent-auth-backdrop")).not_to_have_class(re.compile(r"visible"))
 
     def test_particles_emit_on_connection(self):
         """Verify particle system fires when provider connects."""

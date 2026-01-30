@@ -1,0 +1,77 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://inception.kroma.live/schemas/domain.json",
+    "title": "Domain",
+    "description": "Knowledge domain with hierarchical structure. Maps to schema:Organization.",
+    "type": "object",
+    "required": [
+        "@type",
+        "name"
+    ],
+    "properties": {
+        "@context": {
+            "const": "https://inception.kroma.live/schemas/context.jsonld"
+        },
+        "@type": {
+            "const": "Domain"
+        },
+        "@id": {
+            "type": "string",
+            "format": "uri",
+            "description": "Unique identifier (NID-based URI)"
+        },
+        "name": {
+            "type": "string",
+            "description": "Human-readable domain name"
+        },
+        "description": {
+            "type": "string"
+        },
+        "parentDomain": {
+            "type": "string",
+            "format": "uri",
+            "description": "Parent domain URI"
+        },
+        "childDomains": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "keywords": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "externalRefs": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            },
+            "description": "URLs to authoritative sources"
+        },
+        "claimsCount": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "proceduresCount": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "ideasCount": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "seedingStatus": {
+            "type": "string",
+            "enum": [
+                "unseeded",
+                "partial",
+                "seeded"
+            ]
+        }
+    }
+}
