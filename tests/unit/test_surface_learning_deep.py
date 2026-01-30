@@ -1,26 +1,26 @@
-"""
-Deep tests for surface/learning.py (73%)
-"""
+"""Tests for surface/learning.py (73%)"""
 import pytest
 
 try:
-    from inception.surface.learning import SurfaceLearning
+    from inception.surface.learning import LearningEngine, LearningConfig
     HAS_LEARNING = True
 except ImportError:
     HAS_LEARNING = False
 
-@pytest.mark.skipif(not HAS_LEARNING, reason="surface learning not available")
-class TestSurfaceLearningDeep:
+
+@pytest.mark.skipif(not HAS_LEARNING, reason="LearningEngine not available")
+class TestLearningEngine:
     def test_creation(self):
-        learning = SurfaceLearning()
-        assert learning is not None
-    
-    def test_has_train(self):
-        assert hasattr(SurfaceLearning, "train") or hasattr(SurfaceLearning, "learn") or True
-    
-    def test_has_update(self):
-        learning = SurfaceLearning()
-        assert hasattr(learning, "update") or hasattr(learning, "adapt") or True
+        engine = LearningEngine()
+        assert engine is not None
+
+
+@pytest.mark.skipif(not HAS_LEARNING, reason="LearningConfig not available")
+class TestLearningConfig:
+    def test_creation(self):
+        config = LearningConfig()
+        assert config is not None
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
